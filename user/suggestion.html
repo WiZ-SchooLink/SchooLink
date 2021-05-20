@@ -34,6 +34,12 @@
   <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="../assets/demo/demo.css" rel="stylesheet" />
+
+  <style>
+    table.table td a{
+      display: block;
+    }
+  </style>
 </head>
 
 <body class="">
@@ -42,40 +48,38 @@
       <!--
         Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
     -->
-    <div class="logo">
-      <a href="./dashboard.html" class="simple-text logo-mini">
-        SL
-      </a>
-      <a href="./dashboard.html" class="simple-text logo-normal">
-        SchooLink -管理ページ-
-      </a>
+      <div class="logo">
+        <a href="./dashboard.html" class="simple-text logo-mini">
+          SL
+        </a>
+        <a href="./dashboard.html" class="simple-text logo-normal">
+          SchooLink
+        </a>
+      </div>
+      <div class="sidebar-wrapper" id="sidebar-wrapper">
+        <ul class="nav">
+          <li>
+            <a href="./dashboard.html">
+              <i class="now-ui-icons design_app"></i>
+              <p>配布物</p>
+            </a>
+          </li>
+          <li>
+            <a href="./tables.html">
+              <i class="now-ui-icons education_atom"></i>
+              <p>学校スケジュール</p>
+            </a>
+          </li>
+          <li class="active ">
+            <a href="./suggestion.html">
+              <i class="now-ui-icons education_atom"></i>
+              <p>目安箱</p>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
     </div>
-    <div class="sidebar-wrapper" id="sidebar-wrapper">
-      <ul class="nav">
-        <li>
-          <a href="./dashboard.html">
-            <i class="now-ui-icons design_app"></i>
-            <p>配布物</p>
-          </a>
-        </li>
-        <li class="active ">
-          <a href="./tables.html">
-            <i class="now-ui-icons education_atom"></i>
-            <p>学校スケジュール</p>
-          </a>
-        </li>
-        <li>
-          <a href="./suggestion.html">
-            <i class="now-ui-icons education_atom"></i>
-            <p>目安箱</p>
-          </a>
-        </li>
-        
-      </ul>
-    </div>
-
-    </div>
-    
     <div class="main-panel" id="main-panel">
      
       <!-- End Navbar -->
@@ -86,121 +90,37 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> スケジュール</h4>
-                <a href="tables_fix.html" class="btn btn-primary">修正</a>
+                <h4 class="card-title"> 目安箱</h4>
               </div>
               <div class="card-body">
+                <a href="suggestion_add.html" class="btn btn-success">新規投稿</a>
                 <div class="table-responsive">
                   <table class="table">
                     <thead class=" text-primary">
                       <th>
-                        月曜日
+                        日付
                       </th>
                       <th>
-                        火曜日
-                      </th>
-                      <th>
-                        水曜日
-                      </th>
-                      <th>
-                        木曜日
-                      </th>
-                      <th>
-                        金曜日
+                        タイトル
                       </th>
                     </thead>
                     <tbody>
                       <tr>
                         <td>
-                          科学
+                          2025年6月25日
                         </td>
                         <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
+                            <a href="suggestion_detail.html">運動会を2日間開催にしてほしい</a>
                         </td>
                       </tr>
                     </tbody>
                     <tbody>
                       <tr>
                         <td>
-                          科学
+                            2025年8月15日
                         </td>
                         <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
-                        </td>
-                        <td>
-                          数学
-                        </td>
-                        <td>
-                          科学
+                            近所の学校を集めて大規模合同文化祭を開きたい
                         </td>
                       </tr>
                     </tbody>
@@ -212,6 +132,7 @@
           
         </div>
       </div>
+
 
       <footer class="footer">
         <div class=" container-fluid ">
@@ -257,6 +178,13 @@
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      demo.initDashboardPageCharts();
+
+    });
+  </script>
 </body>
 
 </html>
