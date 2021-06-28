@@ -13,10 +13,11 @@ define('DB_MYSQL_SET_NAMES','1');
 //ホスト(ローカルの場合は'localhost'と記述)
 define('DB_HOST','localhost');
 //ユーザー
+define('DB_USER','');
 //パスワード
-require_once("account.php");
+define('DB_PASS','');
 //DB名
-define('DB_NAME','j2021adb');
+define('DB_NAME','');
 //DBのキャラセット
 define('DB_CHARSET','utf8');
 //PHPのキャラセット
