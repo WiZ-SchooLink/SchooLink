@@ -15,28 +15,30 @@
 
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Now UI Dashboard by Creative Tim
+    入力確認
   </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+    name='viewport' />
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- CSS Files -->
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
+  <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="../assets/demo/demo.css" rel="stylesheet" />
+  <link href="../../assets/demo/demo.css" rel="stylesheet" />
 
   <style>
-    table.table td a{
+    table.table td a {
       display: block;
     }
   </style>
@@ -49,45 +51,42 @@
         Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
     -->
       <div class="logo">
-        <a href="./dashboard.html" class="simple-text logo-mini">
-          SL
-        </a>
-        <a href="./dashboard.html" class="simple-text logo-normal">
-          SchooLink -管理ページ-
+        <a href="../handouts/handouts.html" class="simple-text logo-normal">
+          <center><img src="../../assets/img/SchooLink-2.png"alt="SchooLink"width="120" height="100"></center>
         </a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li>
-            <a href="./dashboard.html">
+          <li class="active ">
+            <a href="../handouts/handouts.html">
               <i class="now-ui-icons design_app"></i>
               <p>配布物</p>
             </a>
           </li>
           <li>
-            <a href="./tables.html">
+            <a href="../tables/tables.html">
               <i class="now-ui-icons education_atom"></i>
               <p>学校スケジュール</p>
             </a>
           </li>
-          <li class="active ">
-            <a href="./suggestion.html">
+          <li>
+            <a href="../suggestion/suggestion.html">
               <i class="now-ui-icons education_atom"></i>
               <p>目安箱</p>
             </a>
           </li>
           <li>
-            <a href="./weblog.html">
+            <a href="../weblog/weblog.html">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
           </li>
-          
+
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
-     
+
       <!-- End Navbar -->
       <div class="panel-header panel-header-sm">
       </div>
@@ -96,45 +95,30 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> 目安箱</h4>
+                <h4 class="card-title">明日の授業参観について</h4>
+                <p>
+                  明日の授業参観は親子参加型授業となります。<br>
+                  グループに分かれて好きな工作の授業を行う予定なので、汚れても良い服装、軍手の準備をお願いします。
+                </p>
+
+                <p>
+                  また、同時にPTA総会を行う予定です。<br>
+                  時間としては1時間程度を予定しています。ご参加をお願いします。
+                </p>
+
+                <p>
+                <img
+                  src="https://1.bp.blogspot.com/-Vc56UVq-NTg/Xbo7g3iRoeI/AAAAAAABV3k/hQxFmXd85oUR9lxaRjau7yAqnyShMRXFACNcBGAsYHQ/s1600/season_character1_spring_sakura.png"
+                  width="300">
+                </p>
+                <a href="./handouts.html" class="btn btn-primary">投稿</a>
               </div>
               <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          2025年6月25日
-                        </td>
-                        <td>
-                            <a href="suggestion_detail.html">運動会を2日間開催にしてほしい</a>
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                            2025年8月15日
-                        </td>
-                        <td>
-                            近所の学校を集めて大規模合同文化祭を開きたい
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+
               </div>
             </div>
           </div>
-          
+
         </div>
       </div>
 
@@ -161,9 +145,11 @@
             </ul>
           </nav>
           <div class="copyright" id="copyright">
-            &copy; <script>
+            &copy;
+            <script>
               document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a
+              href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
           </div>
         </div>
       </footer>
@@ -181,10 +167,11 @@
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
+  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
 
