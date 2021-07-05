@@ -139,7 +139,7 @@ class cclass extends crecord {
 			$column,		//取得するカラム
 			"class,school",			//取得するテーブル
 			"class.school_id = school.school_id",		//条件
-			"class.class_id asc", //並び替え
+			"class.class_id asc" //並び替え
 
 		);
 		//順次取り出す
@@ -237,6 +237,102 @@ class caccount extends crecord {
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
+	@brief	account_idの配列を得る
+	@param[in]	$name		ユーザーネーム
+	@param[in]	$pass		パスワード
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_tgt($name=null,$pass=null){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"account_id",			//取得するカラム
+			"account",	//取得するテーブル
+			"account.login_name='$name' AND account.login_pass='$pass' ",
+			"account.account_id asc"	//条件
+			
+		);
+		$arr = [];
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDから管理者/生徒のフラッグを取得してくる
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_flg($id){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"user_flag",			//取得するカラム
+			"account",	//取得するテーブル
+			"account.account_id='$id'",
+			"account.account_id asc"	//条件
+			
+		);
+		$arr = [];
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+
+	}
+}
+//配布物クラス
+class chandout extends crecord {
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	コンストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __construct() {
+		//親クラスのコンストラクタを呼ぶ
+		parent::__construct();
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	指定された範囲の配列を得る
+	@param[in]	$debug	デバッグ出力をするかどうか
+	@param[in]	$from	抽出開始行
+	@param[in]	$limit	抽出数
+	@return	配列（2次元配列になる）
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_all($column="handout.*"){
+		$arr = array();
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			$column,		//取得するカラム
+			"handout,class",			//取得するテーブル
+			"handout.class_id = class.class_id",		//条件
+			"handout.handout_id asc" //並び替え
+
+		);
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
 	@brief	指定されたIDの配列を得る
 	@param[in]	$id		ID
 	@return	配列（1次元配列になる）空の場合はfalse
@@ -252,9 +348,9 @@ class caccount extends crecord {
 		$this->select(
 			false,			//デバッグ表示するかどうか
 			"*",			//取得するカラム
-			"account,class",	//取得するテーブル
-			"account.class_id=class.class_id AND account.account_id=".$id,	//条件
-			"account.account_id asc"
+			"handout,class",	//取得するテーブル
+			"handout.class_id = class.class_id AND handout.handout_id=".$id,	//条件
+			"handout.handout_id asc"
 		);
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
@@ -263,5 +359,15 @@ class caccount extends crecord {
 		//取得した配列を返す
 		return $arr;
 
+	}	
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	デストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __destruct(){
+		//親クラスのデストラクタを呼ぶ
+		parent::__destruct();
 	}
 }
+
