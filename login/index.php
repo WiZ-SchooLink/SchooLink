@@ -48,7 +48,34 @@
   }
 </style>
 
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 
+session_start();  //セッションを利用
+
+$_SESSION['TeamA'] = array(); //セッション初期化
+
+//ログイン名とパスワードの入力値を取得してアカウントIDを取得
+if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン名とパスワードが入力されている場合
+  $obj = new caccount();  //アカウントのオブジェクト作成
+  $arr = $obj->get_tgt(strip_tags($_POST['LoginName']), strip_tags($_POST['Password']));  //アカウントID配列取得
+  if (!empty($arr)) { //アカウントIDの配列に中身がある場合(ログインが成功した場合)
+    $_SESSION['TeamA']['account_id'] =  $arr[0]["account_id"];  //アカウントID配列からアカウントIDを取り出してセッションに追加
+    $arr = $obj->get_flg($_SESSION['TeamA']['account_id']); //セッション内のアカウントIDを利用して権限判別値配列を取得
+    switch ($arr[0]["user_flag"]) { //権限判別値配列から権限判別値を取り出して判別
+      case "1": //ユーザー権限
+        header("location: ../user/handouts/handouts.html"); //ユーザー用の配布物ページ
+        break;
+      case "2": //管理者権限
+        header("location: ../administrator/handouts/handouts.html");  //管理者用の配布物ページ
+        break;
+    }
+  } else {
+    echo "ユーザー名かパスワードが違います";
+  }
+}
+?>
 
 <link rel="stylesheet" type="text/css" href="../assets/css/bootstrap.css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
@@ -61,13 +88,11 @@
       <h3 class="form-signin-heading">SchooLinkへようこそ</h3>
       <hr class="colorgraph"><br>
 
-      <input type="text" class="form-control" name="Username" placeholder="Username" required="" autofocus="" />
+      <input type="text" class="form-control" name="LoginName" placeholder="LoginName" required="" autofocus="" />
       <input type="password" class="form-control" name="Password" placeholder="Password" required="" />
 
-      <a href="../user/handouts/handouts.html" class="btn btn-primary">Login</a>
-
+      <input type="submit" class="btn btn-primary" value="ログイン">
       <a href="../referral/index.html" class="btn btn-secondry">導入紹介はこちら</a>
     </form>
   </div>
 </div>
-    
