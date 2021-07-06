@@ -65,13 +65,15 @@ if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン
     $arr = $obj->get_flg($_SESSION['TeamA']['account_id']); //セッション内のアカウントIDを利用して権限判別値配列を取得
     switch ($arr[0]["user_flag"]) { //権限判別値配列から権限判別値を取り出して判別
       case "1": //ユーザー権限
-        header("location: ../user/handouts/handouts.html"); //ユーザー用の配布物ページ
+        header("location: ../user/handouts/handouts.html"); //ユーザー用の配布物ページへリダイレクト
+        exit();
         break;
       case "2": //管理者権限
-        header("location: ../administrator/handouts/handouts.html");  //管理者用の配布物ページ
+        header("location: ../administrator/handouts/handouts.html");  //管理者用の配布物ページへリダイレクト
+        exit();
         break;
     }
-  } else {
+  } else {  //アカウントIDの配列に中身が無い場合(ログインが失敗した場合)
     echo "ユーザー名かパスワードが違います";
   }
 }
