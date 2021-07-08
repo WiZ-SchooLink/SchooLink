@@ -20,34 +20,20 @@ require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 
 session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$arr = $account_obj->get_school_userinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全アカウントの情報の配列を取得
+$schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
 
-//リスト表示用コード自動生成
-function make_list($row)  //1アカウントの情報を代入
-{
-  echo '<tr>
-  <td> <a href = detail/' . $row["login_name"] . '>' . $row["login_name"] . '</a> </td>' //ログインIDを出力し、リンクを生成
-    . '<td>' . $row["user_name"] . '</td>'  //ユーザー名を表示
-    . '<td>';
-  $class_obj = new cclass();  //クラスのオブジェクト作成
-  $class_name = $class_obj->get_class_name($row["class_id"]);  //クラスIDからクラス名を取得
-  echo $class_name[0]["class_name"];  //クラス名表示
-  echo '</td>'
-    . '<td>';
-  switch ($row["user_flag"]) { //権限を取得して表示
-    case 1:
-      echo "ユーザー";
-      break;
-    case 2:
-      echo "管理者";
-      break;
-    case 3:
-      echo "最上位管理者";
-      break;
-  }
-  echo '</td>
-</tr>';
+//アカウント新規追加処理
+if (!empty($_POST["login_name"]) and !empty($_POST["login_pass"]) and !empty($_POST["user_name"]) and !empty($_POST["class_id"]) and !empty($_POST["user_flag"])) { //すべてが入力されている場合
+  $account_obj->insert_account($_POST["login_name"], $_POST["login_pass"], $_POST["class_id"], $_POST["user_name"], $_POST["user_flag"]); //アカウント新規追加
+  header("location: account.php"); //アカウント管理トップページへリダイレクト
 }
+
+//クラス名リスト自動生成
+function make_schoollist($row)
+{ //1クラス分の配列
+  echo '<option value="' . $row["class_id"] . '">' . $row["class_name"] . '</option>';  //valueにクラスIDを代入、内容にクラス名を代入
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +45,7 @@ function make_list($row)  //1アカウントの情報を代入
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    アカウント管理
+    アカウント新規追加
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -118,36 +104,43 @@ function make_list($row)  //1アカウントの情報を代入
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> アカウント管理</h4>
-                <a href="account_add.php" class="btn btn-primary">新規追加</a>
+                <h4 class="card-title"> アカウント新規追加</h4>
               </div>
               <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        ログインID
-                      </th>
-                      <th>
-                        ユーザー名
-                      </th>
-                      <th>
-                        クラス
-                      </th>
-                      <th>
-                        権限
-                      </th>
-                    </thead>
-                    <tbody>
+                <form action="" method="post" name="account_add_form" class="account_add_form">
+                  <div class="mb-3">
+                    <label class="form-label">ログイン名</label>
+                    <input type="text" class="form-control" name="login_name" placeholder="LoginName" required="" autofocus="" />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">ログインパスワード</label>
+                    <input type="password" class="form-control" name="login_pass" placeholder="LoginPass" required="" />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">ユーザー名</label>
+                    <input type="text" class="form-control" name="user_name" placeholder="UserName" required="" />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">クラス</label>
+                    <select class="form-select" name="class_id">
                       <?php
-                      //リスト表示用コード自動生成実行
-                      foreach ($arr as $row) {  //取得したリスト数分ループ
-                        make_list($row);  //一人分のデータを代入して実行
+                      //クラス名リスト自動生成実行
+                      foreach ($schoolname_array as $row) {  //取得したリスト数分ループ
+                        make_schoollist($row);  //一人分のデータを代入して実行
                       }
                       ?>
-                    </tbody>
-                  </table>
-                </div>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">権限</label>
+                    <select class="form-select" name="user_flag">
+                      <option value="1">ユーザー</option>
+                      <option value="2">管理者</option>
+                      <option value="3">最上位管理者</option>
+                    </select>
+                  </div>
+                  <input type="submit" class="btn btn-primary" value="実行">
+                </form>
               </div>
             </div>
           </div>
@@ -175,7 +168,8 @@ function make_list($row)  //1アカウントの情報を代入
             </ul>
           </nav>
           <div class="copyright" id="copyright">
-            &copy; <script>
+            &copy;
+            <script>
               document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
             </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
           </div>
@@ -195,7 +189,8 @@ function make_list($row)  //1アカウントの情報を代入
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
+  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
     $(document).ready(function() {
