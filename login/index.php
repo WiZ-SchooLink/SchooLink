@@ -72,6 +72,10 @@ if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン
         header("location: ../administrator/handouts/handouts.html");  //管理者用の配布物ページへリダイレクト
         exit();
         break;
+      case "3": //最上位管理者権限
+        header("location: ../superuser/account/account.php");  //最上位管理者用のアカウント管理ページへリダイレクト
+        exit();
+        break;
     }
   } else {  //アカウントIDの配列に中身が無い場合(ログインが失敗した場合)
     echo "ユーザー名かパスワードが違います";
