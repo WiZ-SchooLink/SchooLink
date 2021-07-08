@@ -77,7 +77,7 @@ class cschool extends crecord {
 	/*!
 	@brief	指定されたIDの配列を得る
 	@param[in]	$id		ID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_tgt($id){
@@ -103,18 +103,9 @@ class cschool extends crecord {
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	デストラクタ
-	*/
-	//--------------------------------------------------------------------------------------
-	public function __destruct(){
-		//親クラスのデストラクタを呼ぶ
-		parent::__destruct();
-	}
-	//--------------------------------------------------------------------------------------
-	/*!
 	@brief	学校からアカウントクラスの配列を得る
 	@param[in]	$id		ID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_school_user($id){
@@ -138,6 +129,43 @@ class cschool extends crecord {
 		return $arr;
 
 	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	学校からクラスクラスにあるクラスIDとクラスネームの配列を得る
+	@param[in]	$id		ID
+	@return	配列（2次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_school_class($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"DISTINCT class.class_id,class.class_name",			//取得するカラム
+			"account,class,school",	//取得するテーブル
+			"school.school_id=class.school_id AND school.school_id=". $id	//条件
+		);
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	デストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __destruct(){
+		//親クラスのデストラクタを呼ぶ
+		parent::__destruct();
+	}	
 }
 
 //クラスクラス
@@ -205,6 +233,7 @@ class cclass extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -233,6 +262,7 @@ class cclass extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -284,15 +314,6 @@ class caccount extends crecord {
 	}	
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	デストラクタ
-	*/
-	//--------------------------------------------------------------------------------------
-	public function __destruct(){
-		//親クラスのデストラクタを呼ぶ
-		parent::__destruct();
-	}
-	//--------------------------------------------------------------------------------------
-	/*!
 	@brief	account_idの配列を得る
 	@param[in]	$name		ユーザーネーム
 	@param[in]	$pass		パスワード
@@ -318,12 +339,13 @@ class caccount extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントIDから管理者/生徒のフラッグを取得してくる
 	@param[in]	$id		アカウントid
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_flg($id){
@@ -345,12 +367,13 @@ class caccount extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントIDからログインネーム、クラスID、ユーザーネーム、ユーザーフラッグを取得
 	@param[in]	$id		アカウントid
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_userinfo($id){
@@ -377,6 +400,31 @@ class caccount extends crecord {
 		}
 		//取得した配列を返す
 		return $arr2;
+
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDからログインネーム、ユーザーネーム、ユーザーフラッグを取得
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_testinfo($id){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		 $this->select(
+			false,			//デバッグ表示するかどうか
+			"login_name,user_name,user_flag",			//取得するカラム
+			"account",	//取得するテーブル
+			"account.account_id='$id'",
+			"account.account_id asc"	//条件
+			
+		);
+
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -392,7 +440,7 @@ class caccount extends crecord {
 			false,			//デバッグ表示するかどうか
 			"handout.*",			//取得するカラム
 			"account,class,handout",	//取得するテーブル
-			"account.class_id=class.class_id AND class.class_id=handout.class_idS",
+			"account.class_id=class.class_id AND class.class_id=handout.class_id AND account.account_id = $id",
 			"handout.handout_id asc"	//条件
 			
 		);
@@ -404,6 +452,7 @@ class caccount extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -431,12 +480,78 @@ class caccount extends crecord {
 			$arr[] = $row;
 		}
 
-		//学校クラスでアカウントテーブルの情報をselectして取得する
 		$obj = new cschool();
 		$rows = $obj->get_school_user($arr[0]["school_id"]);
-	
+		
+
+		
 		//取得した配列を返す
 		return $rows;
+
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDから各学校にあるクラスIDとクラスネームを取得
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_school_classinfo($id){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"school.*",			//取得するカラム
+			"account,class,school",	//取得するテーブル
+			"account.class_id=class.class_id AND class.school_id=school.school_id AND account.account_id='$id'",
+			"account.class_id asc"	//条件
+			
+		);
+		$arr = [];
+		
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+
+			$arr[] = $row;
+		}
+
+		$obj = new cschool();
+		$rows = $obj->get_school_class($arr[0]["school_id"]);
+		
+
+		
+		//取得した配列を返す
+		return $rows;
+
+	}
+
+//インサート文記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントテーブルのアカウントID以外の属性に値を追加する関数
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_account($login_name,$login_pass,$class_id,$user_name,$user_flag){
+		$obj = new cchange_ex();
+		$dataarr = array();
+		$dataarr['login_name'] = (string)$login_name;
+		$dataarr['login_pass'] = (string)$login_pass;
+		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['user_name'] = (string)$user_name;
+		$dataarr['user_flag'] = (int)$user_flag;
+		$obj->insert(false,'account',$dataarr);
+	}
+
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	デストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __destruct(){
+		//親クラスのデストラクタを呼ぶ
+		parent::__destruct();
 	}
 }
 //配布物クラス
@@ -504,6 +619,7 @@ class chandout extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
+
 	}	
 	//--------------------------------------------------------------------------------------
 	/*!
