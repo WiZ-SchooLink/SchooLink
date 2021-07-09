@@ -26,7 +26,7 @@ $arr = $account_obj->get_school_userinfo($_SESSION['TeamA']['account_id']);  //�
 function make_list($row)  //1アカウントの情報を代入
 {
   echo '<tr>
-  <td> <a href = detail/' . $row["login_name"] . '>' . $row["login_name"] . '</a> </td>' //ログインIDを出力し、リンクを生成
+  <td> <a href = account_fix.php?id=' . $row["login_name"] . '>' . $row["login_name"] . '</a> </td>' //ログインIDを出力し、リンクを生成
     . '<td>' . $row["user_name"] . '</td>'  //ユーザー名を表示
     . '<td>';
   $class_obj = new cclass();  //クラスのオブジェクト作成
