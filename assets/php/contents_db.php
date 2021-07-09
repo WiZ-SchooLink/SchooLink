@@ -165,7 +165,8 @@ class cschool extends crecord {
 	public function __destruct(){
 		//親クラスのデストラクタを呼ぶ
 		parent::__destruct();
-	}	
+	}
+
 }
 
 //クラスクラス
@@ -317,7 +318,7 @@ class caccount extends crecord {
 	@brief	account_idの配列を得る
 	@param[in]	$name		ユーザーネーム
 	@param[in]	$pass		パスワード
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_tgt($name=null,$pass=null){
@@ -524,12 +525,41 @@ class caccount extends crecord {
 		return $rows;
 
 	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	account_idの配列を得る
+	@param[in]	$name		ユーザーネーム
+	@param[in]	$pass		パスワード
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_accinfo($id){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"*",			//取得するカラム
+			"account",	//取得するテーブル
+			"login_name='$id' ",
+			"account.account_id asc"	//条件
+			
+		);
+		
+		//レコード1行分を1次元配列に格納
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
 
+	}
 //インサート文記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントテーブルのアカウントID以外の属性に値を追加する関数
-	@param[in]	$id		アカウントid
+	@param[in]	$login_name		アカウントid
+	@param[in]	$login_pass		アカウントid
+	@param[in]	$class_id		アカウントid
+	@param[in]	$user_name		アカウントid
+	@param[in]	$user_flag		アカウントid
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
@@ -543,6 +573,39 @@ class caccount extends crecord {
 		$dataarr['user_flag'] = (int)$user_flag;
 		$obj->insert(false,'account',$dataarr);
 	}
+
+//アップデート文記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントテーブルの更新を行う関数
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function updata_account($account_id,$login_name,$login_pass,$class_id,$user_name,$user_flag){
+		$obj = new cchange_ex();
+		$dataarr = array();
+		$dataarr['account_id'] = (int)$account_id;
+		$dataarr['login_name'] = (string)$login_name;
+		$dataarr['login_pass'] = (string)$login_pass;
+		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['user_name'] = (string)$user_name;
+		$dataarr['user_flag'] = (int)$user_flag;
+		$obj->update(false,'account',$dataarr,'account_id=' . $account_id );
+	}
+//デリート文記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDで指定したアカウントレコードを削除
+	@param[in]	$id	アカウントID
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function delete_account($id){
+		$obj = new cchange_ex();
+		$obj->delete(false,'account','account_id=' . $id);
+	}
+
 
 	//--------------------------------------------------------------------------------------
 	/*!
