@@ -6,6 +6,7 @@
 */
 //PDO接続初期化
 
+use chandout as GlobalChandout;
 use cschool as GlobalCschool;
 
 require_once("pdointerface.php");
@@ -145,7 +146,7 @@ class cschool extends crecord {
 		//親クラスのselect()メンバ関数を呼ぶ
 		$this->select(
 			false,			//デバッグ表示するかどうか
-			"DISTINCT class.class_id,class.class_name",			//取得するカラム
+			"DISTINCT class.class_id,class.grade,class.class_name",			//取得するカラム
 			"account,class,school",	//取得するテーブル
 			"school.school_id=class.school_id AND school.school_id=". $id	//条件
 		);
@@ -264,6 +265,87 @@ class cclass extends crecord {
 		//取得した配列を返す
 		return $arr;
 
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラスidからクラスネームの配列を得る
+	@param[in]	$id		ID
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_class_info($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"class_id,grade,class_name",			//取得するカラム
+			"class",	//取得するテーブル
+			"class_id=".$id,	//条件
+			"class_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+
+	}
+//インサート記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラステーブルのクラスID以外の属性に値を追加する関数
+	@param[in]	$school_id	学校ID
+	@param[in]	$grade 		学年
+	@param[in]	$class_name	クラス名（年組）
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_class($school_id,$grade,$class_name){
+		$obj = new cchange_ex();
+		$dataarr = array();
+		$dataarr['school_id'] = (int)$school_id;
+		$dataarr['grade'] = (string)$grade;
+		$dataarr['class_name'] = (string)$class_name;
+		$obj->insert(false,'class',$dataarr);
+	}
+//アップデート記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラステーブルの更新を行う関数
+	@param[in]	$id		アカウントid
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function updata_class($class_id,$school_id,$grade,$class_name){
+		$obj = new cchange_ex();
+		$dataarr = array();
+		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['school_id'] = (int)$school_id;
+		$dataarr['grade'] = (string)$grade;
+		$dataarr['class_name'] = (string)$class_name;
+		
+		
+		$obj->update(false,'class',$dataarr,'class_id=' . $class_id );
+
+	}
+//デリート記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラスIDでクラステーブルのレコードを削除　また、それに紐づく配布物レコードも削除する
+	@param[in]	$id		クラスID
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function delete_class($id){
+		$obj = new cchange_ex();
+		$handobj = new chandout();
+		$accobj = new caccount();
+		$accobj->delete_classaccount($id);
+		$handobj->delete_classhandout($id);
+		$obj->delete(false,'class','class_id=' . $id);
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -474,7 +556,6 @@ class caccount extends crecord {
 			
 		);
 		$arr = [];
-		$arr2 = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
 
@@ -493,6 +574,30 @@ class caccount extends crecord {
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントIDから各学校にあるクラスIDとクラスネームを取得
+	@param[in]	$id		アカウントid
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_school_id($id){
+		
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"school.school_id",			//取得するカラム
+			"account,class,school",	//取得するテーブル
+			"account.class_id=class.class_id AND class.school_id=school.school_id AND account.account_id='$id'",
+			"account.class_id asc"	//条件
+			
+		);
+		$row = $this->fetch_assoc();
+		
+		//取得した配列を返す
+		return $row;
+
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDから各学校にある学校IDを取得
 	@param[in]	$id		アカウントid
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
@@ -525,6 +630,7 @@ class caccount extends crecord {
 		return $rows;
 
 	}
+	
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	account_idの配列を得る
@@ -551,15 +657,15 @@ class caccount extends crecord {
 		return $row;
 
 	}
-//インサート文記述枠
+//インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントテーブルのアカウントID以外の属性に値を追加する関数
-	@param[in]	$login_name		アカウントid
-	@param[in]	$login_pass		アカウントid
-	@param[in]	$class_id		アカウントid
-	@param[in]	$user_name		アカウントid
-	@param[in]	$user_flag		アカウントid
+	@param[in]	$login_name		ログインネーム
+	@param[in]	$login_pass		ログインパス
+	@param[in]	$class_id		クラスID（外部キー）
+	@param[in]	$user_name		ユーザーネーム
+	@param[in]	$user_flag		ユーザーレベル
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
@@ -574,7 +680,7 @@ class caccount extends crecord {
 		$obj->insert(false,'account',$dataarr);
 	}
 
-//アップデート文記述枠
+//アップデート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントテーブルの更新を行う関数
@@ -593,7 +699,7 @@ class caccount extends crecord {
 		$dataarr['user_flag'] = (int)$user_flag;
 		$obj->update(false,'account',$dataarr,'account_id=' . $account_id );
 	}
-//デリート文記述枠
+//デリート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	アカウントIDで指定したアカウントレコードを削除
@@ -604,6 +710,17 @@ class caccount extends crecord {
 	public function delete_account($id){
 		$obj = new cchange_ex();
 		$obj->delete(false,'account','account_id=' . $id);
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラスIDでアカウントレコード内の該当するアカウント削除
+	@param[in]	$id	クラスID
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function delete_classaccount($id){
+		$obj = new cchange_ex();
+		$obj->delete(false,'account','class_id=' . $id);
 	}
 
 
@@ -684,6 +801,20 @@ class chandout extends crecord {
 		return $arr;
 
 	}	
+//インサート記述枠
+//アップデート記述枠
+//デリート記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラステーブルを削除する際に外部キーしている配布物レコードを削除
+	@param[in]	$id		クラスID
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function delete_classhandout($id){
+		$obj = new cchange_ex();
+		$obj->delete(false,'handout','class_id=' . $id);
+	}
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	デストラクタ
