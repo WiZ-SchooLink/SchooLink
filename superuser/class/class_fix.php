@@ -20,16 +20,27 @@ require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 
 session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
+$class_obj = new cclass();  //クラスのオブジェクト作成
+$select_class_data = $class_obj->get_class_info($_GET["id"]); //クラス情報修正対象のクラスIDからそのクラスの情報を取得
+$_SESSION['TeamA']['delete_class_id'] =  $select_class_data["class_id"]; //削除時にクラスを識別するためにクラスIDをセッションに追加
 
-//クラス名リスト自動生成
-function make_schoollist($row)
-{
-  echo '<tr>'
-  .'<td> <a href = class_fix.php?id=' . $row["class_id"] . '>' . $row["class_name"] . '</a> </td>'  //クラスIDを出力し、リンクを生成
-  .'<td>' . $row["grade"] . '年</td>'  //学年を表示
-  .'</tr>';
+//クラス情報修正処理
+if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが入力されている場合
+  global $class_obj, $account_obj;
+  $schoolid_array = $account_obj->get_school_id($_SESSION['TeamA']['account_id']);  //自分の学校のIDを取得
+  $class_obj->updata_class($select_class_data["class_id"], $schoolid_array["school_id"], $_POST["grade"], $_POST["class_name"]); //クラス情報修正
+  unset($_SESSION['TeamA']['delete_class_id']);  //削除に利用しないため削除
+  header("location: class.php"); //クラス管理トップページへリダイレクト
 }
+
+//クラスの情報を入力フォームの中身に代入して表示
+function make_form()
+{
+  global $select_class_data;
+  echo '<div class="mb-3"> <label class="form-label">学年</label> <input type="number" class="form-control" name="grade" placeholder="Grade" required="" autofocus="" max="6" value="' . $select_class_data["grade"] . '"/> </div>'
+    . '<div class="mb-3"> <label class="form-label">クラス名</label> <input type="text" class="form-control" name="class_name" placeholder="ClassName" required="" value="' . $select_class_data["class_name"] . '"/> </div>';
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +52,7 @@ function make_schoollist($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    クラス管理
+    クラス情報修正
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -58,6 +69,17 @@ function make_schoollist($row)
       display: block;
     }
   </style>
+
+   <!-- 削除ボタン押下時 -->
+   <script language="javascript" type="text/javascript">
+    //削除確認アラート表示
+    function DeleteCheck() {
+      if (confirm("削除を実行します\nそのクラスに紐付いた配布物･アカウントも削除されます")) { //アラートを表示し、OKがクリックされた場合
+        window.location.href = "class_delete.php"; //クラス削除処理ページへリダイレクト
+      }
+    }
+  </script>
+
 </head>
 
 <body class="">
@@ -100,30 +122,17 @@ function make_schoollist($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> クラス管理</h4>
-                <a href="class_add.php" class="btn btn-primary">新規追加</a>
-              </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        クラス名
-                      </th>
-                      <th>
-                        学年
-                      </th>
-                    </thead>
-                    <tbody>
-                    <?php
-                      //クラス名リスト自動生成実行
-                      foreach ($schoolname_array as $row) {  //取得したリスト数分ループ
-                        make_schoollist($row);  //1クラス分のデータを代入して実行
-                      }
-                      ?>
-                    </tbody>
-                  </table>
+                <h4 class="card-title"> クラス情報修正</h4> 
                 </div>
+              <div class="card-body">
+                <form action="" method="post" name="class_fix_form" class="class_fix_form">
+                  <?php
+                  //クラスの情報を入力フォームの中身に代入して表示する処理を実行
+                    make_form();
+                  ?>
+                  <input type="button" class="btn btn-danger" value="削除" onclick="DeleteCheck();">
+                  <input type="submit" class="btn btn-primary" value="実行">
+                </form>
               </div>
             </div>
           </div>

@@ -20,16 +20,16 @@ require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 
 session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
+$class_obj = new cclass();  //クラスのオブジェクト作成
 
-//クラス名リスト自動生成
-function make_schoollist($row)
-{
-  echo '<tr>'
-  .'<td> <a href = class_fix.php?id=' . $row["class_id"] . '>' . $row["class_name"] . '</a> </td>'  //クラスIDを出力し、リンクを生成
-  .'<td>' . $row["grade"] . '年</td>'  //学年を表示
-  .'</tr>';
+//クラス新規追加処理
+if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが入力されている場合
+  global $class_obj, $account_obj;
+  $schoolid_array = $account_obj->get_school_id($_SESSION['TeamA']['account_id']);  //自分の学校のIDを取得
+  $class_obj->insert_class($schoolid_array["school_id"], $_POST["grade"], $_POST["class_name"]); //クラス新規追加
+  header("location: class.php"); //クラス管理トップページへリダイレクト
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +41,7 @@ function make_schoollist($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    クラス管理
+    クラス新規追加
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -100,30 +100,20 @@ function make_schoollist($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> クラス管理</h4>
-                <a href="class_add.php" class="btn btn-primary">新規追加</a>
-              </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        クラス名
-                      </th>
-                      <th>
-                        学年
-                      </th>
-                    </thead>
-                    <tbody>
-                    <?php
-                      //クラス名リスト自動生成実行
-                      foreach ($schoolname_array as $row) {  //取得したリスト数分ループ
-                        make_schoollist($row);  //1クラス分のデータを代入して実行
-                      }
-                      ?>
-                    </tbody>
-                  </table>
+                <h4 class="card-title"> クラス新規追加</h4> 
                 </div>
+              <div class="card-body">
+                <form action="" method="post" name="class_add_form" class="class_add_form">
+                  <div class="mb-3">
+                    <label class="form-label">学年</label>
+                    <input type="number" class="form-control" name="grade" placeholder="Grade" required="" autofocus="" max="6"/>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">クラス名</label>
+                    <input type="text" class="form-control" name="class_name" placeholder="ClassName" required="" />
+                  </div>
+                  <input type="submit" class="btn btn-primary" value="実行">
+                </form>
               </div>
             </div>
           </div>
