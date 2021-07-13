@@ -22,7 +22,19 @@ session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
 $select_class_data = $class_obj->get_class_info($_GET["id"]); //クラス情報修正対象のクラスIDからそのクラスの情報を取得
+$schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
 $_SESSION['TeamA']['delete_class_id'] =  $select_class_data["class_id"]; //削除時にクラスを識別するためにクラスIDをセッションに追加
+
+foreach($schoolname_array as $class_array){ //管理対象のクラスID
+  if($select_class_data["class_id"] == $class_array["class_id"]){ //修正するクラスIDと管理対象クラスIDが一致した場合
+    break;  //クラスIDチェックからbreak
+  }
+  if ($class_array === end($schoolname_array)) {  //一致しないまま最後まで比較された場合
+    $_SESSION['TeamA']['error_message'] = "class_fix-管理外のクラスが指定されました";   //管理外のアカウントが指定されていた場合セッションにエラーメッセージを追加
+    header("location: ../../error.php"); //エラーページへリダイレクト
+    exit();
+  }
+}
 
 //クラス情報修正処理
 if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが入力されている場合
