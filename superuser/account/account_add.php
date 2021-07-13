@@ -24,8 +24,16 @@ $schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['accou
 
 //アカウント新規追加処理
 if (!empty($_POST["login_name"]) and !empty($_POST["login_pass"]) and !empty($_POST["user_name"]) and !empty($_POST["class_id"]) and !empty($_POST["user_flag"])) { //すべてが入力されている場合
-  $account_obj->insert_account($_POST["login_name"], $_POST["login_pass"], $_POST["class_id"], $_POST["user_name"], $_POST["user_flag"]); //アカウント新規追加
-  header("location: account.php"); //アカウント管理トップページへリダイレクト
+  foreach($schoolname_array as $class_array){ //管理対象のクラスID
+    if($_POST["class_id"] == $class_array["class_id"]){ //追加するクラスIDと管理対象クラスIDが一致した場合
+      $account_obj->insert_account($_POST["login_name"], $_POST["login_pass"], $_POST["class_id"], $_POST["user_name"], $_POST["user_flag"]); //アカウント新規追加
+      header("location: account.php"); //アカウント管理トップページへリダイレクト
+      exit();
+    }
+  }
+  $_SESSION['TeamA']['error_message'] = "account_add-管理外のクラスIDが指定されました";   //管理外のクラスIDが指定されていた場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
 }
 
 //クラス名リスト自動生成
