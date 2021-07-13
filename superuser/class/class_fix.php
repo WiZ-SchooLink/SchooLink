@@ -17,8 +17,9 @@
 <?php
 require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-session_start();  //セッションを利用
+// session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
 $select_class_data = $class_obj->get_class_info($_GET["id"]); //クラス情報修正対象のクラスIDからそのクラスの情報を取得

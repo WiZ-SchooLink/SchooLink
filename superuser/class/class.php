@@ -17,8 +17,9 @@
 <?php
 require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-session_start();  //セッションを利用
+// session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
 
