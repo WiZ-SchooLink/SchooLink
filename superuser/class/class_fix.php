@@ -26,6 +26,16 @@ $select_class_data = $class_obj->get_class_info($_GET["id"]); //クラス情報�
 $schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
 $_SESSION['TeamA']['delete_class_id'] =  $select_class_data["class_id"]; //削除時にクラスを識別するためにクラスIDをセッションに追加
 
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 3;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "class_fix-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+
 foreach($schoolname_array as $class_array){ //管理対象のクラスID
   if($select_class_data["class_id"] == $class_array["class_id"]){ //修正するクラスIDと管理対象クラスIDが一致した場合
     break;  //クラスIDチェックからbreak

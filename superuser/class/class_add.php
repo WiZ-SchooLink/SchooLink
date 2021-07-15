@@ -23,6 +23,16 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
 
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 3;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "class_add-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+
 //クラス新規追加処理
 if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが入力されている場合
   global $class_obj, $account_obj;
