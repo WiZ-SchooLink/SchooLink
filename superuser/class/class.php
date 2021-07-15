@@ -23,6 +23,16 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
 
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 3;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "class-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+
 //クラス名リスト自動生成
 function make_schoollist($row)
 {
