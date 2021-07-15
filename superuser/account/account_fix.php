@@ -46,12 +46,12 @@ foreach($schoolname_array as $class_array){ //管理対象のクラスID
   }
 }
 //アカウント情報修正処理
-if (!empty($_POST["login_name"]) and !empty($_POST["login_pass"]) and !empty($_POST["class_id"]) and !empty($_POST["user_name"]) and !empty($_POST["user_flag"])) { //すべてが入力されている場合
+if (!empty($_POST["login_name"]) and !empty($_POST["class_id"]) and !empty($_POST["user_name"]) and !empty($_POST["user_flag"])) { //すべて入力されている場合(パスワードは空の場合あり)
   
   foreach($schoolname_array as $class_array){ //管理対象のクラスID
     if($_POST["class_id"] == $class_array["class_id"]){ //追加するクラスIDと管理対象クラスIDが一致した場合
       $account_obj->updata_account($select_user_data["account_id"], $_POST["login_name"], $_POST["login_pass"], $_POST["class_id"], $_POST["user_name"], $_POST["user_flag"]); //アカウント情報修正
-      unset($_SESSION['TeamA']['delete_account_id']);  //削除に利用したいため削除
+      unset($_SESSION['TeamA']['delete_account_id']);  //削除に利用しないため削除
       header("location: account.php"); //アカウント管理トップページへリダイレクト
       exit();
     }
@@ -96,7 +96,7 @@ function make_form()
 {
   global $select_user_data;
   echo '<div class="mb-3"> <label class="form-label">ログイン名</label> <input type="text" class="form-control" name="login_name" placeholder="LoginName" required="" autofocus="" value="' . $select_user_data["login_name"] . '"/> </div>'
-    . '<div class="mb-3"> <label class="form-label">ログインパスワード</label> <input type="password" class="form-control" name="login_pass" placeholder="LoginPass" required="" value="' . $select_user_data["login_pass"] . '"/> </div>'
+    . '<div class="mb-3"> <label class="form-label">ログインパスワード</label> <input type="password" class="form-control" name="login_pass" placeholder="LoginPass 修正しない場合は空欄"/> </div>'
     . '<div class="mb-3"> <label class="form-label">ユーザー名</label> <input type="text" class="form-control" name="user_name" placeholder="UserName" required="" value="' . $select_user_data["user_name"] . '"/> </div>';
 }
 
