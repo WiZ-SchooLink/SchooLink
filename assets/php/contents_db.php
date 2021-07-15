@@ -263,7 +263,7 @@ class cclass extends crecord {
 			$arr[] = $row;
 		}
 		//取得した配列を返す
-		return $arr;
+		return $row;
 
 	}
 	//--------------------------------------------------------------------------------------
@@ -293,6 +293,7 @@ class cclass extends crecord {
 		return $row;
 
 	}
+	
 //インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -629,13 +630,11 @@ class caccount extends crecord {
 		//取得した配列を返す
 		return $rows;
 
-	}
-	
+	}	
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	account_idの配列を得る
-	@param[in]	$name		ユーザーネーム
-	@param[in]	$pass		パスワード
+	@brief	ログインネームから該当するアカウントテーブルの配列を得る
+	@param[in]	$id		ログインネーム
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
@@ -657,6 +656,38 @@ class caccount extends crecord {
 		return $row;
 
 	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントidから配布物テーブルの配列を得る
+	@param[in]	$id		アカウントID
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_account_handinfo($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"handout.*",			//取得するカラム
+			"account,class,handout",	//取得するテーブル
+			"account.class_id=class.class_id AND class.class_id=handout.class_id AND account.account_id=".$id,	//条件
+			"handout.handout_id asc"
+		);
+		$arr = [];
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+
+	}
+
 //インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -776,7 +807,7 @@ class chandout extends crecord {
 	/*!
 	@brief	指定されたIDの配列を得る
 	@param[in]	$id		ID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_tgt($id){
@@ -802,6 +833,26 @@ class chandout extends crecord {
 
 	}	
 //インサート記述枠
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	配布物テーブルのhandout_idとdate以外の属性に値を追加する関数
+	@param[in]	$class_id		クラスID
+	@param[in]	$date		日付（yyyy-mm-dd hh:mm:ss）
+	@param[in]	$title		タイトルネーム
+	@param[in]	$constents_handout		配布物内容
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_handout($class_id,$title,$constents_handout){
+		$obj = new cchange_ex();
+		$date = date("Y-m-d H:i:s");
+		$dataarr = array();
+		$dataarr['class_id'] = (string)$class_id;
+		$dataarr['date'] = $date;
+		$dataarr['title'] = (string)$title;
+		$dataarr['constents_handout'] = (string)$constents_handout;
+		$obj->insert(false,'handout',$dataarr);
+	}
 //アップデート記述枠
 //デリート記述枠
 	//--------------------------------------------------------------------------------------
