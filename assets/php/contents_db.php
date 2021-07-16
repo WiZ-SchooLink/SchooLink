@@ -105,7 +105,7 @@ class cschool extends crecord {
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	学校からアカウントクラスの配列を得る
-	@param[in]	$id		ID
+	@param[in]	$id		スクールID
 	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ class cschool extends crecord {
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	学校からクラスクラスにあるクラスIDとクラスネームの配列を得る
-	@param[in]	$id		ID
+	@param[in]	$id		スクールID
 	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
@@ -241,7 +241,7 @@ class cclass extends crecord {
 	/*!
 	@brief	クラスidからクラスネームの配列を得る
 	@param[in]	$id		ID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_class_name($id){
@@ -263,7 +263,7 @@ class cclass extends crecord {
 			$arr[] = $row;
 		}
 		//取得した配列を返す
-		return $row;
+		return $arr;
 
 	}
 	//--------------------------------------------------------------------------------------
@@ -398,22 +398,21 @@ class caccount extends crecord {
 	}	
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	account_idの配列を得る
+	@brief	account_idの配列を得るまたパスワードチェック
 	@param[in]	$name		ユーザーネーム
 	@param[in]	$pass		パスワード
 	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get_tgt($name=null,$pass=null){
+	public function get_tgt($name,$pass){
 		
 		//親クラスのselect()メンバ関数を呼ぶ
 		$this->select(
 			false,			//デバッグ表示するかどうか
-			"account_id",			//取得するカラム
+			"account_id,login_pass",			//取得するカラム
 			"account",	//取得するテーブル
-			"account.login_name='$name' AND account.login_pass='$pass' ",
-			"account.account_id asc"	//条件
-			
+			"account.login_name='$name' ",
+			"account.account_id asc"	//条件	
 		);
 		$arr = [];
 		//順次取り出す
@@ -421,8 +420,14 @@ class caccount extends crecord {
 
 			$arr[] = $row;
 		}
-		//取得した配列を返す
-		return $arr;
+		$stored_seed = substr($arr[0]['login_pass'],32,8);
+		if(hash("md5",$stored_seed . $pass) . $stored_seed == $arr[0]['login_pass']){
+			return $arr;//取得した配列を返す	 
+		}
+		else{
+			return null;
+		}
+		
 
 	}
 	//--------------------------------------------------------------------------------------
@@ -697,14 +702,20 @@ class caccount extends crecord {
 	@param[in]	$class_id		クラスID（外部キー）
 	@param[in]	$user_name		ユーザーネーム
 	@param[in]	$user_flag		ユーザーレベル
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return		無し
 	*/
 	//--------------------------------------------------------------------------------------
 	public function insert_account($login_name,$login_pass,$class_id,$user_name,$user_flag){
 		$obj = new cchange_ex();
+		$seed = null;
+		$hash_pass = null;
+		for ($i = 1; $i <= 8; $i++){
+			$seed .= substr('0123456789abcdef',rand(0,15),1);
+		}
+		$hash_pass = hash("md5",$seed . $login_pass) . $seed;
 		$dataarr = array();
 		$dataarr['login_name'] = (string)$login_name;
-		$dataarr['login_pass'] = (string)$login_pass;
+		$dataarr['login_pass'] = (string)$hash_pass;
 		$dataarr['class_id'] = (int)$class_id;
 		$dataarr['user_name'] = (string)$user_name;
 		$dataarr['user_flag'] = (int)$user_flag;
@@ -716,18 +727,33 @@ class caccount extends crecord {
 	/*!
 	@brief	アカウントテーブルの更新を行う関数
 	@param[in]	$id		アカウントid
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	無し
 	*/
 	//--------------------------------------------------------------------------------------
 	public function updata_account($account_id,$login_name,$login_pass,$class_id,$user_name,$user_flag){
 		$obj = new cchange_ex();
-		$dataarr = array();
-		$dataarr['account_id'] = (int)$account_id;
-		$dataarr['login_name'] = (string)$login_name;
-		$dataarr['login_pass'] = (string)$login_pass;
-		$dataarr['class_id'] = (int)$class_id;
-		$dataarr['user_name'] = (string)$user_name;
-		$dataarr['user_flag'] = (int)$user_flag;
+		if(!empty($login_pass)){
+			$seed = null;
+			$hash_pass = null;
+			for ($i = 1; $i <= 8; $i++){
+				$seed .= substr('0123456789abcdef',rand(0,15),1);
+			}
+			$hash_pass = hash("md5",$seed . $login_pass) . $seed;
+			$dataarr = array();
+			$dataarr['account_id'] = (int)$account_id;
+			$dataarr['login_name'] = (string)$login_name;
+			$dataarr['login_pass'] = (string)$hash_pass;
+			$dataarr['class_id'] = (int)$class_id;
+			$dataarr['user_name'] = (string)$user_name;
+			$dataarr['user_flag'] = (int)$user_flag;
+		}else{
+			$dataarr = array();
+			$dataarr['account_id'] = (int)$account_id;
+			$dataarr['login_name'] = (string)$login_name;
+			$dataarr['class_id'] = (int)$class_id;
+			$dataarr['user_name'] = (string)$user_name;
+			$dataarr['user_flag'] = (int)$user_flag;
+		}
 		$obj->update(false,'account',$dataarr,'account_id=' . $account_id );
 	}
 //デリート記述枠
@@ -735,7 +761,7 @@ class caccount extends crecord {
 	/*!
 	@brief	アカウントIDで指定したアカウントレコードを削除
 	@param[in]	$id	アカウントID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return 無し
 	*/
 	//--------------------------------------------------------------------------------------
 	public function delete_account($id){
