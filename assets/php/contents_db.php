@@ -30,29 +30,6 @@ class cschool extends crecord {
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	すべての個数を得る
-	@param[in]	$debug	デバッグ出力をするかどうか
-	@return	個数
-	*/
-	//--------------------------------------------------------------------------------------
-	public function get_all_count($debug=false){
-		//親クラスのselect()メンバ関数を呼ぶ
-		$this->select(
-			$debug,					//デバッグ文字を出力するかどうか
-			"count(*)",				//取得するカラム
-			"school",			//取得するテーブル
-			"1"					//条件
-		);
-		if($row = $this->fetch_assoc()){
-			//取得した個数を返す
-			return $row['count(*)'];
-		}
-		else{
-			return 0;
-		}
-	}
-	//--------------------------------------------------------------------------------------
-	/*!
 	@brief	指定された範囲の配列を得る
 	@param[in]	$column　取得するデータ
 	@return	配列（2次元配列になる）
@@ -100,7 +77,6 @@ class cschool extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -128,7 +104,6 @@ class cschool extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -156,7 +131,6 @@ class cschool extends crecord {
 		}
 		//取得した配列を返す
 		return $arr;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -199,7 +173,6 @@ class cclass extends crecord {
 			"class,school",			//取得するテーブル
 			"class.school_id = school.school_id",		//条件
 			"class.class_id asc" //並び替え
-
 		);
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
@@ -293,7 +266,33 @@ class cclass extends crecord {
 		return $row;
 
 	}
-	
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントidからクラスID得る
+	@param[in]	$id		アカウントID
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_class_accoid($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"class.class_id",			//取得するカラム
+			"account,class",	//取得するテーブル
+			"account.class_id=class.class_id AND account.account_id=".$id,	//条件
+			"class.class_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+
+	}
 //インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -327,8 +326,6 @@ class cclass extends crecord {
 		$dataarr['school_id'] = (int)$school_id;
 		$dataarr['grade'] = (string)$grade;
 		$dataarr['class_name'] = (string)$class_name;
-		
-		
 		$obj->update(false,'class',$dataarr,'class_id=' . $class_id );
 
 	}
@@ -398,7 +395,7 @@ class caccount extends crecord {
 	}	
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	account_idの配列を得るまたパスワードチェック
+	@brief	account_idの配列を得る
 	@param[in]	$name		ユーザーネーム
 	@param[in]	$pass		パスワード
 	@return	配列（2次元配列になる）空の場合はfalse
@@ -420,6 +417,9 @@ class caccount extends crecord {
 
 			$arr[] = $row;
 		}
+		if(empty($arr)){
+			return null;
+		}
 		$stored_seed = substr($arr[0]['login_pass'],32,8);
 		if(hash("md5",$stored_seed . $pass) . $stored_seed == $arr[0]['login_pass']){
 			return $arr;//取得した配列を返す	 
@@ -427,8 +427,6 @@ class caccount extends crecord {
 		else{
 			return null;
 		}
-		
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -445,13 +443,11 @@ class caccount extends crecord {
 			"user_flag",			//取得するカラム
 			"account",	//取得するテーブル
 			"account.account_id='$id'",
-			"account.account_id asc"	//条件
-			
+			"account.account_id asc"	//条件	
 		);
 		$arr = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
 		}
 		//取得した配列を返す
@@ -473,23 +469,19 @@ class caccount extends crecord {
 			"login_name,class_id,user_name,user_flag",			//取得するカラム
 			"account",	//取得するテーブル
 			"account.account_id='$id'",
-			"account.account_id asc"	//条件
-			
+			"account.account_id asc"	//条件			
 		);
 		$arr = [];
 		$arr2 = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
-
 		}
 		for($i=0;$i<5;$i++){
 			$arr2[$i]=$arr;
 		}
 		//取得した配列を返す
 		return $arr2;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -506,14 +498,11 @@ class caccount extends crecord {
 			"login_name,user_name,user_flag",			//取得するカラム
 			"account",	//取得するテーブル
 			"account.account_id='$id'",
-			"account.account_id asc"	//条件
-			
+			"account.account_id asc"	//条件			
 		);
-
 		$row = $this->fetch_assoc();
 		//取得した配列を返す
 		return $row;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -530,18 +519,15 @@ class caccount extends crecord {
 			"handout.*",			//取得するカラム
 			"account,class,handout",	//取得するテーブル
 			"account.class_id=class.class_id AND class.class_id=handout.class_id AND account.account_id = $id",
-			"handout.handout_id asc"	//条件
-			
+			"handout.handout_id asc"	//条件			
 		);
 		$arr = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
 		}
 		//取得した配列を返す
 		return $arr;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -564,18 +550,12 @@ class caccount extends crecord {
 		$arr = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
 		}
-
 		$obj = new cschool();
-		$rows = $obj->get_school_user($arr[0]["school_id"]);
-		
-
-		
+		$rows = $obj->get_school_user($arr[0]["school_id"]);		
 		//取得した配列を返す
 		return $rows;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -592,14 +572,11 @@ class caccount extends crecord {
 			"school.school_id",			//取得するカラム
 			"account,class,school",	//取得するテーブル
 			"account.class_id=class.class_id AND class.school_id=school.school_id AND account.account_id='$id'",
-			"account.class_id asc"	//条件
-			
+			"account.class_id asc"	//条件			
 		);
-		$row = $this->fetch_assoc();
-		
+		$row = $this->fetch_assoc();		
 		//取得した配列を返す
 		return $row;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -616,25 +593,18 @@ class caccount extends crecord {
 			"school.*",			//取得するカラム
 			"account,class,school",	//取得するテーブル
 			"account.class_id=class.class_id AND class.school_id=school.school_id AND account.account_id='$id'",
-			"account.class_id asc"	//条件
-			
+			"account.class_id asc"	//条件			
 		);
 		$arr = [];
 		
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
 		}
-
 		$obj = new cschool();
 		$rows = $obj->get_school_class($arr[0]["school_id"]);
-		
-
-		
 		//取得した配列を返す
 		return $rows;
-
 	}	
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -651,15 +621,12 @@ class caccount extends crecord {
 			"*",			//取得するカラム
 			"account",	//取得するテーブル
 			"login_name='$id' ",
-			"account.account_id asc"	//条件
-			
-		);
-		
+			"account.account_id asc"	//条件		
+		);	
 		//レコード1行分を1次元配列に格納
 		$row = $this->fetch_assoc();
 		//取得した配列を返す
 		return $row;
-
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -685,12 +652,34 @@ class caccount extends crecord {
 		$arr = [];
 		//順次取り出す
 		while($row = $this->fetch_assoc()){
-
 			$arr[] = $row;
 		}
 		//取得した配列を返す
 		return $arr;
-
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDからファイルパスだけを取得する
+	@param[in]	$debug	デバッグ出力をするかどうか
+	@param[in]	$from	抽出開始行
+	@param[in]	$limit	抽出数
+	@return	配列（2次元配列になる）
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_filepath($id){
+		$arr = array();
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"filepath",		//取得するカラム
+			"account,class,lunch",			//取得するテーブル
+			"account.class_id = class.class_id AND class.class_id = lunch.class_id AND account.account_id =".$id,		//条件
+			"lunch.lunch_id asc" //並び替え
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
 	}
 
 //インサート記述枠
@@ -721,7 +710,41 @@ class caccount extends crecord {
 		$dataarr['user_flag'] = (int)$user_flag;
 		$obj->insert(false,'account',$dataarr);
 	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントテーブルのアカウントID以外の属性に値を追加する関数
+	@param[in]	$id		アカウントID
+	@param[in]	$upfile	filename
+	@return		無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_lunch($id,$upfile){
+		
+		# 拡張子を取得する
+		$file_ext = pathinfo($upfile["name"], PATHINFO_EXTENSION);
+		# 現在の時間を取得する
+		$time_now = ceil(microtime(true)*1000);
+		# 保存先のファイルパスを生成する（実戦運用する場合、排他処理を考慮して保存先のファイル名を生成する必要があります）
+		$file_name_new = "../../updata/" . $time_now . "." . $file_ext;
+		# ファイルの移動を行う
+		move_uploaded_file ($upfile["tmp_name"], $file_name_new);
 
+		$obj = new cclass();
+		$row = $obj->get_class_accoid($id);		
+		$dataarr = array();
+		$dataarr['class_id'] = (int)$row['class_id'];
+		$dataarr['filepath'] = (string)$file_name_new;
+
+		$ins_obj = new cchange_ex();
+		$account_obj = new caccount();
+		$fileCheck = $account_obj->get_filepath($id);
+		if(empty($fileCheck)){
+			$ins_obj->insert(false,'lunch',$dataarr);
+		}else{
+			unlink($fileCheck['filepath']);
+			$ins_obj->update(false,'lunch',$dataarr,'class_id='.$row['class_id']);
+		}
+	}
 //アップデート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -858,6 +881,33 @@ class chandout extends crecord {
 		return $arr;
 
 	}	
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	配布物IDから内容だけを得る
+	@param[in]	$id		配布物ID
+	@return	配列（2次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_handout_constents($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"constents_handout",			//取得するカラム
+			"handout,class",	//取得するテーブル
+			"handout.handout_id=".$id,	//条件
+			"handout.handout_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+
+	}	
 //インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -901,5 +951,46 @@ class chandout extends crecord {
 		//親クラスのデストラクタを呼ぶ
 		parent::__destruct();
 	}
+}
+//献立クラス
+class clunch extends crecord {
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	コンストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __construct() {
+		//親クラスのコンストラクタを呼ぶ
+		parent::__construct();
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラスIDからファイルパスを取得
+	@param[in]	$id		クラスID
+	@return	配列（2次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_lunch_filepath($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"filepath",			//取得するカラム
+			"lunch",	//取得するテーブル
+			"class_id=".$id,	//条件
+			"lunch_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+	}	
+//インサート
+//アップデート
+	
 }
 
