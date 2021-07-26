@@ -508,7 +508,7 @@ class caccount extends crecord {
 	/*!
 	@brief	アカウントIDから配布物テーブルの情報を取得
 	@param[in]	$id		アカウントid
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_handout($id){
@@ -632,7 +632,7 @@ class caccount extends crecord {
 	/*!
 	@brief	アカウントidから配布物テーブルの配列を得る
 	@param[in]	$id		アカウントID
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_account_handinfo($id){
@@ -663,7 +663,7 @@ class caccount extends crecord {
 	@param[in]	$debug	デバッグ出力をするかどうか
 	@param[in]	$from	抽出開始行
 	@param[in]	$limit	抽出数
-	@return	配列（2次元配列になる）
+	@return	配列（1次元配列になる）
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_filepath($id){
@@ -681,7 +681,32 @@ class caccount extends crecord {
 		//取得した配列を返す
 		return $row;
 	}
-
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDでスケジュールテーブルにあるスケジュールのファイルパスを取得
+	@param[in]	$id		アカウントID
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_schedule_file($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"schedule.contents_filepath",			//取得するカラム
+			"account,class,schedule",	//取得するテーブル
+			"account.class_id = class.class_id AND class.class_id = schedule.class_id AND account.account_id=".$id,	//条件
+			"schedule_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+	}	
 //インサート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -743,6 +768,41 @@ class caccount extends crecord {
 		}else{
 			unlink($fileCheck['filepath']);
 			$ins_obj->update(false,'lunch',$dataarr,'class_id='.$row['class_id']);
+		}
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	スケジュールテーブルのスケジュールID以外の属性に値を追加する関数
+	@param[in]	$id		アカウントID
+	@param[in]	$upfile	ファイルパス
+	@return		無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_schedule($id,$upfile){
+		
+		# 拡張子を取得する
+		$file_ext = pathinfo($upfile["name"], PATHINFO_EXTENSION);
+		# 現在の時間を取得する
+		$time_now = ceil(microtime(true)*1000);
+		# 保存先のファイルパスを生成する（実戦運用する場合、排他処理を考慮して保存先のファイル名を生成する必要があります）
+		$file_name_new = "../../updata/" . $time_now . "." . $file_ext;
+		# ファイルの移動を行う
+		move_uploaded_file ($upfile["tmp_name"], $file_name_new);
+
+		$obj = new cclass();
+		$row = $obj->get_class_accoid($id);		
+		$dataarr = array();
+		$dataarr['class_id'] = (int)$row['class_id'];
+		$dataarr['schedule_filepath'] = (string)$file_name_new;
+
+		$ins_obj = new cchange_ex();
+		$account_obj = new caccount();
+		$fileCheck = $account_obj->get_schedule_file($id);
+		if(empty($fileCheck)){
+			$ins_obj->insert(false,'schedule',$dataarr);
+		}else{
+			unlink($fileCheck['filepath']);
+			$ins_obj->update(false,'schedule',$dataarr,'class_id='.$row['class_id']);
 		}
 	}
 //アップデート記述枠
@@ -836,7 +896,7 @@ class chandout extends crecord {
 	//--------------------------------------------------------------------------------------
 	public function get_all($column="handout.*"){
 		$arr = array();
-		//親クラスのselect()メンバ関数を呼ぶ
+		//親クラスのselect()
 		$this->select(
 			false,			//デバッグ表示するかどうか
 			$column,		//取得するカラム
@@ -897,8 +957,8 @@ class chandout extends crecord {
 		//親クラスのselect()メンバ関数を呼ぶ
 		$this->select(
 			false,			//デバッグ表示するかどうか
-			"constents_handout",			//取得するカラム
-			"handout,class",	//取得するテーブル
+			"title,contents_handout",			//取得するカラム
+			"handout",	//取得するテーブル
 			"handout.handout_id=".$id,	//条件
 			"handout.handout_id asc"
 		);
@@ -919,21 +979,21 @@ class chandout extends crecord {
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
-	public function insert_handout($class_id,$title,$constents_handout){
+	public function insert_handout($class_id,$title,$contents_handout){
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
 		$dataarr = array();
 		$dataarr['class_id'] = (string)$class_id;
 		$dataarr['date'] = $date;
 		$dataarr['title'] = (string)$title;
-		$dataarr['constents_handout'] = (string)$constents_handout;
+		$dataarr['contents_handout'] = (string)$contents_handout;
 		$obj->insert(false,'handout',$dataarr);
 	}
 //アップデート記述枠
 //デリート記述枠
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	クラステーブルを削除する際に外部キーしている配布物レコードを削除
+	@brief	クラステーブルを削除する際に外部キーにしている配布物レコードを削除
 	@param[in]	$id		クラスID
 	@return	無し
 	*/
@@ -952,6 +1012,65 @@ class chandout extends crecord {
 		parent::__destruct();
 	}
 }
+//配布物ファイルクラス
+class chandfile extends crecord{
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	コンストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __construct() {
+		//親クラスのコンストラクタを呼ぶ
+		parent::__construct();
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	配布物IDから配布物ファイルテーブルのファイルパスを取得
+	@param[in]	$id		配布物ID（配布物テーブル）
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_handfile($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"handfile.filepath",			//取得するカラム
+			"handout,handfile",	//取得するテーブル
+			"handout.handout_id=handfile.handout_id AND handfile.handout_id=".$id,	//条件
+			"handfile_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+	}	
+//インサート
+	public function insert_handfile($handarr){
+		$dataarr = array();
+		$obj = new cchange_ex();
+		
+		foreach($handarr as  $arr){
+			# 拡張子を取得する
+			$file_ext = pathinfo($arr['name'], PATHINFO_EXTENSION);
+			# 現在の時間を取得する
+			$time_now = ceil(microtime(true)*1000);
+			# 保存先のファイルパスを生成する（実戦運用する場合、排他処理を考慮して保存先のファイル名を生成する必要があります）
+			$file_name_new = "../../updata/" . $time_now . "." . $file_ext;
+			# ファイルの移動を行う
+			move_uploaded_file ($arr["tmp_name"], $file_name_new);
+			
+			$dataarr['handout_id'] = (int)$arr['handout_id'];
+			$dataarr['filepath']   = (string)$file_name_new;
+			$obj->insert(false,'handfile',$dataarr);
+ 		}
+	}
+//アップデート
+}
 //献立クラス
 class clunch extends crecord {
 	//--------------------------------------------------------------------------------------
@@ -965,9 +1084,9 @@ class clunch extends crecord {
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
-	@brief	クラスIDからファイルパスを取得
+	@brief	クラスIDからランチテーブルのファイルパスを取得
 	@param[in]	$id		クラスID
-	@return	配列（2次元配列になる）空の場合はfalse
+	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_lunch_filepath($id){
@@ -991,6 +1110,189 @@ class clunch extends crecord {
 	}	
 //インサート
 //アップデート
-	
 }
+//スケジュールクラス
+class cschedule extends crecord {
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	コンストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __construct() {
+		//親クラスのコンストラクタを呼ぶ
+		parent::__construct();
+	}
+	
+//インサート
+	
+//アップデート
+}
+//ブログクラス
+class cweblog extends crecord {
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	コンストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __construct() {
+		//親クラスのコンストラクタを呼ぶ
+		parent::__construct();
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	アカウントIDからweblogテーブルのID、日付、タイトルを取得
+	@param[in]	$id		アカウントID
+	@return	配列（2次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_weblog_data($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"weblog.weblog_id,weblog.date,weblog.title,weblog.contents_weblog",			//取得するカラム
+			"account,class,weblog",	//取得するテーブル
+			"account.class_id=class.class_id AND class.class_id=weblog.class_id AND account.account_id=".$id,	//条件
+			"weblog.weblog_id asc"
+		);
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+	}	
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	weblog_idからweblogfileテーブルのpathリストを取得
+	@param[in]	$id weblog_id
+	@return	配列（2次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_weblog_filepath_list($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"weblogfile.filepath",			//取得するカラム
+			"weblog,weblogfile",	//取得するテーブル
+			"weblog.weblog_id = weblogfile.weblog_id AND weblog.weblog_id = ". $id,	//条件
+			"weblogfile.weblogfile_id asc"
+		);
+		$arr = [];
+		//順次取り出す
+		while($row = $this->fetch_assoc()){
+			$arr[] = $row;
+		}
+		//取得した配列を返す
+		return $arr;
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	weblog_idから内容を取得
+	@param[in]	$id weblog_id
+	@return	配列（1次元配列になる）空の場合はfalse
+	*/
+	//--------------------------------------------------------------------------------------
+	public function get_weblog_content($id){
+		if(!cutil::is_number($id)
+		||  $id < 1){
+			//falseを返す
+			return false;
+		}
+		//親クラスのselect()メンバ関数を呼ぶ
+		$this->select(
+			false,			//デバッグ表示するかどうか
+			"*",			//取得するカラム
+			"weblog",	//取得するテーブル
+			"weblog_id = ". $id,	//条件
+			"weblog_id asc"
+		);
+		//順次取り出す
+		$row = $this->fetch_assoc();
+		//取得した配列を返す
+		return $row;
+	}		
 
+//インサート
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	weblogテーブルに挿入する情報追加、ファイルはパスをweblogfileテーブルに追加する関数
+	@param[in]	$account_id		アカウントID
+	@param[in]	$date		日付（yyyy-mm-dd hh:mm:ss）
+	@param[in]	$title		タイトルネーム
+	@param[in]	$constents_weblog		ブログ内容
+	@param[in]	$weblogarr		ファイルの名前が入ってる配列
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_weblog($account_id,$title,$contents_weblog,$weblogarr){
+		$acc_obj = new cclass();
+		$class_id = $acc_obj->get_class_accoid($account_id);
+		$obj = new cchange_ex();
+		$date = date("Y-m-d H:i:s");
+		$dataarr = array();
+		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['date'] = $date;
+		$dataarr['title'] = (string)$title;
+		$dataarr['contents_weblog'] = (string)$contents_weblog;
+		$weblog_id = $obj->insert(false,'weblog',$dataarr);
+		if(!empty($weblogarr)){
+			$weblog_obj = new cweblog();
+			$weblog_obj->insert_weblogfile($weblog_id,$weblogarr);
+		}
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	weblogfileにパスとかを追加する関数
+	@param[in]	$id		weblog_id
+	@param[in]	$blogfile	ブログのパス
+	*/
+	//--------------------------------------------------------------------------------------
+	public function insert_weblogfile($id,$blogfile){
+		$obj = new cchange_ex();
+		for($i = 0;$i<count($blogfile["name"]);$i++){
+			# 拡張子を取得する
+			$file_ext = pathinfo($blogfile["name"][$i], PATHINFO_EXTENSION);
+			# 現在の時間を取得する
+			$time_now = ceil(microtime(true)*1000);
+			# 保存先のファイルパスを生成する（実戦運用する場合、排他処理を考慮して保存先のファイル名を生成する必要があります）
+			$file_name_new = "../../updata/" . $time_now . "." . $file_ext;
+			# ファイルの移動を行う
+			move_uploaded_file ($blogfile["tmp_name"][$i], $file_name_new);
+			
+			$dataarr['weblog_id'] = (int)$id;
+			$dataarr['filepath'] = (string)$file_name_new;
+			$obj->insert(false,'weblogfile',$dataarr);
+ 		}
+	}
+//アップデート
+//デリート
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	クラステーブルを削除する際に外部キーにしている配布物レコードを削除
+	@param[in]	$id		クラスID
+	@return	無し
+	*/
+	//--------------------------------------------------------------------------------------
+	public function delete_classweblog($id){
+		$obj = new cchange_ex();
+		$obj->delete(false,'weblog','class_id=' . $id);
+	}
+	//--------------------------------------------------------------------------------------
+	/*!
+	@brief	デストラクタ
+	*/
+	//--------------------------------------------------------------------------------------
+	public function __destruct(){
+		//親クラスのデストラクタを呼ぶ
+		parent::__destruct();
+	}
+}
