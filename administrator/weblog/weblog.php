@@ -1,36 +1,46 @@
-<!--
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
+// session_start();  //セッションを利用
+$account_obj = new caccount();  //アカウントのオブジェクト作成
+$weblog_obj = new cweblog();  //ブログのオブジェクト作成
+$weblog_array = $weblog_obj->get_weblog_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスの記事一覧を取得
 
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 2;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "weblog-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
 
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
+//ブログリスト一覧表示用処理
+function make_list($row){
+  echo '<tbody> <tr> <td>' .$row["date"] .'</td>' //日付表示
+        .'<td> <a href="weblog_detail.php?id=' .$row["weblog_id"] .'">' .$row["title"] .'</a> </td> </tr> </tbody>';  //タイトル・リンクを表示
+}
 
-=========================================================
+?>
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
+  <link rel="icon" type="image/png" href="../../img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    新規投稿確認
+    ブログ・ギャラリー（管理）
   </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
-    name='viewport' />
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
-    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- CSS Files -->
   <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="../../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
@@ -38,7 +48,7 @@
   <link href="../../assets/demo/demo.css" rel="stylesheet" />
 
   <style>
-    table.table td a {
+    table.table td a{
       display: block;
     }
   </style>
@@ -76,17 +86,17 @@
             </a>
           </li>
           <li class="active ">
-            <a href="../weblog/weblog.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
           </li>
-
+          
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
-
+     
       <!-- End Navbar -->
       <div class="panel-header panel-header-sm">
       </div>
@@ -95,42 +105,32 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> 社会科見学でゴミ処理場に行ってきました</h4>
-                <p>
-                  本日社会科見学でゴミ処理場を見学させていただきました。<br>
-                  本日見学させていただいた富久川クリーンセンターは2018年に完成したクリーンセンターです。
-                </p>
-
-                <p>
-                  次世代型大規模クリーンセンターとして作られた富久川クリーンセンターは、超高温でゴミを焼却することで有害物質の発生を抑え、高度な熱回収による発電・周辺地域への給湯など環境にとても優しいゴミ処理場ということでした。<br>
-                  その他にも3Rの大切さやプラスチックゴミ問題など様々なお話も聞かせていただきました。
-                </p>
-
-                <p>
-                  子どもたちは真剣に、そして楽しそうに見学していました。<br>
-                  わかりやすく、そして詳しく教えていただいたので、ぜひ家庭でも話題にしてみてください。
-                </p>
-
-                <img
-                  src="https://4.bp.blogspot.com/-X6Y32Uh5ud4/W_UF70_iobI/AAAAAAABQT0/gF3Braf7peIkKgr_MWRSRz_RuCR4wMnsACLcBGAs/s800/building_koujou_entotsu.png"
-                  width="300">
-                <img src="https://2.bp.blogspot.com/-F4dXranYRPE/UchCE6ktikI/AAAAAAAAVJ8/7lhxSugK8Sk/s800/recycle.png"
-                  width="300">
-                <img
-                  src="https://1.bp.blogspot.com/-hw8U0g0kUhc/U8XkayZ6HPI/AAAAAAAAiwQ/oyxinfRFzR4/s800/benkyou_classroom.png"
-                  width="300">
-                <img
-                  src="https://4.bp.blogspot.com/-5nzYYCihOCk/WM9X76OH1NI/AAAAAAABCuM/1AkTMWW7vn0uhJIX5Z3kfXXRisox0Hg5gCLcB/s800/kids_kyouryoku.png"
-                  width="300">
-
+                <h4 class="card-title">ブログ・ギャラリー</h4>
+                <a href="weblog_add.php" class="btn btn-primary">新規追加</a>
               </div>
               <div class="card-body">
-                <a href="./weblog.html" class="btn btn-primary">投稿</a>
-
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead class=" text-primary">
+                      <th>
+                        日付
+                      </th>
+                      <th>
+                        タイトル
+                      </th>
+                    </thead>
+                    <?php
+                      //リスト表示用コード自動生成実行
+                      foreach ($weblog_array as $row) {  //取得したリスト数分ループ
+                        make_list($row);  //一記事のデータを代入して実行
+                      }
+                      ?>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-
+          
         </div>
       </div>
 
@@ -157,11 +157,9 @@
             </ul>
           </nav>
           <div class="copyright" id="copyright">
-            &copy;
-            <script>
+            &copy; <script>
               document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a
-              href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
           </div>
         </div>
       </footer>
@@ -179,11 +177,10 @@
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
-  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
 

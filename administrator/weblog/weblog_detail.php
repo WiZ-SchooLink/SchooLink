@@ -1,29 +1,74 @@
-<!--
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
+// session_start();  //セッションを利用
+$account_obj = new caccount();  //アカウントのオブジェクト作成
+$weblog_obj = new cweblog();  //ブログのオブジェクト作成
+$class_obj = new cclass();  //クラスのオブジェクト作成
+$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDのから記事のデータを取得
+$filepath_list = $weblog_obj->get_weblog_filepath_list($_GET["id"]);  //ブログIDから記事に紐づく画像のパスのリストを取得
 
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 2;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "weblog_detail-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+//対象記事チェック
+$account_classid = $class_obj->get_class_accoid($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスIDを取得
+//対象記事チェック処理
+if($account_classid["class_id"] != $weblog_data["class_id"]){ //アカウントのクラスIDとページのクラスIDが一致しない場合
+  $_SESSION['TeamA']['error_message'] = "weblog_detail-対象外の記事が指定されました";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
 
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
+//記事タイトルの表示処理
+function get_title(){
+  global $weblog_data;
+  echo $weblog_data["title"]; //タイトル表示
+}
 
-=========================================================
+//記事内容の表示処理
+function get_contents(){
+  global $weblog_data;
+  echo $weblog_data["contents_weblog"]; //記事内容表示
+}
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//記事に紐付いた画像の表示処理
+function get_filepath(){
+  global $filepath_list;
+  if(!empty($filepath_list)){ //記事に紐付いた画像が存在しているか判別
+    foreach($filepath_list as $filepath){ //ファイルパスのリストから取り出し
+      echo '<img src="' .$filepath["filepath"] .'" width="300">'; //画像の表示
+    }
+  }
+}
 
--->
+//記事修正ボタン表示処理
+function make_fixbutton(){
+  global $weblog_data;
+  echo '<a href="weblog_fix.php?id=' .$weblog_data["weblog_id"] .'" class="btn btn-primary">修正・削除</a>';  //ボタンの表示・リンクの生成
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
+  <link rel="icon" type="image/png" href="../../img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    社会科見学でゴミ処理場に行ってきました
+    <?php
+      get_title();  //記事タイトルの表示
+    ?>
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -74,7 +119,7 @@
             </a>
           </li>
           <li class="active ">
-            <a href="../weblog/weblog.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
@@ -93,29 +138,24 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">	社会科見学でゴミ処理場に行ってきました</h4>
-                <p>
-                  本日社会科見学でゴミ処理場を見学させていただきました。<br>
-                  本日見学させていただいた富久川クリーンセンターは2018年に完成したクリーンセンターです。
-                </p>
-
-                <p>
-                    次世代型大規模クリーンセンターとして作られた富久川クリーンセンターは、超高温でゴミを焼却することで有害物質の発生を抑え、高度な熱回収による発電・周辺地域への給湯など環境にとても優しいゴミ処理場ということでした。<br>
-                    その他にも3Rの大切さやプラスチックゴミ問題など様々なお話も聞かせていただきました。
-                </p>
-
-                <p>
-                  子どもたちは真剣に、そして楽しそうに見学していました。<br>
-                  わかりやすく、そして詳しく教えていただいたので、ぜひ家庭でも話題にしてみてください。
-                </p>
-
-                  <img src="https://4.bp.blogspot.com/-X6Y32Uh5ud4/W_UF70_iobI/AAAAAAABQT0/gF3Braf7peIkKgr_MWRSRz_RuCR4wMnsACLcBGAs/s800/building_koujou_entotsu.png" width="300">
-                  <img src="https://2.bp.blogspot.com/-F4dXranYRPE/UchCE6ktikI/AAAAAAAAVJ8/7lhxSugK8Sk/s800/recycle.png" width="300">
-                  <img src="https://1.bp.blogspot.com/-hw8U0g0kUhc/U8XkayZ6HPI/AAAAAAAAiwQ/oyxinfRFzR4/s800/benkyou_classroom.png" width="300">
-                  <img src="https://4.bp.blogspot.com/-5nzYYCihOCk/WM9X76OH1NI/AAAAAAABCuM/1AkTMWW7vn0uhJIX5Z3kfXXRisox0Hg5gCLcB/s800/kids_kyouryoku.png" width="300">
+                <?php
+                  make_fixbutton(); //記事修正ボタン表示
+                ?>
               </div>
               <div class="card-body">
-                
+              <h4 class="card-title">
+                <?php
+                  get_title();  //記事タイトルの表示
+                ?>
+              </h4>
+              <p>
+                <?php
+                  get_contents(); //記事内容の表示
+                ?>
+              </p>
+              <?php
+                get_filepath(); //記事に紐付いた画像の表示
+              ?>
               </div>
             </div>
           </div>
