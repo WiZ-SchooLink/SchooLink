@@ -91,7 +91,6 @@ function make_list($row){
               <p>ブログ・ギャラリー</p>
             </a>
           </li>
-          
         </ul>
       </div>
     </div>
@@ -130,10 +129,8 @@ function make_list($row){
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-
 
       <footer class="footer">
         <div class=" container-fluid ">

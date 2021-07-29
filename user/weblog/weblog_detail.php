@@ -7,7 +7,7 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $weblog_obj = new cweblog();  //ブログのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
-$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDのから記事のデータを取得
+$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDから記事のデータを取得
 $filepath_list = $weblog_obj->get_weblog_filepath_list($_GET["id"]);  //ブログIDから記事に紐づく画像のパスのリストを取得
 
 //権限チェック

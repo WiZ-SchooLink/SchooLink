@@ -128,10 +128,8 @@ function make_list($row){
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-
 
       <footer class="footer">
         <div class=" container-fluid ">

@@ -7,8 +7,9 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 $account_obj = new caccount();  //アカウントのオブジェクト作成
 $weblog_obj = new cweblog();  //ブログのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
-$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDのから記事のデータを取得
+$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDから記事のデータを取得
 $filepath_list = $weblog_obj->get_weblog_filepath_list($_GET["id"]);  //ブログIDから記事に紐づく画像のパスのリストを取得
+$_SESSION['TeamA']['delete_weblog_id'] =  $_GET["id"]; //削除時に記事を識別するためにブログIDをセッションに追加
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
@@ -28,12 +29,13 @@ if($account_classid["class_id"] != $weblog_data["class_id"]){ //アカウント�
   exit();
 }
 
-// //記事アップデート処理
-// if (!empty($_POST["title"])) { //タイトルが入力されている場合
-//   $weblog_obj->insert_weblog($_SESSION['TeamA']['account_id'], $_POST["title"], $_POST["textarea1"], $_FILES["input_file"]);  //記事を追加
-//   header("location: weblog.php"); //アカウント管理トップページへリダイレクト
-//   exit();
-// }
+//記事アップデート処理
+if (!empty($_POST["title"])) { //タイトルが入力されている場合
+  $weblog_obj->update_weblog($_SESSION['TeamA']['account_id'], $_GET["id"], $_POST["title"], $_POST["textarea1"], $_FILES["input_file"]);  //記事を追加
+  unset($_SESSION['TeamA']['delete_weblog_id']);  //削除に利用しないため削除
+  header("location: weblog.php"); //アカウント管理トップページへリダイレクト
+  exit();
+}
 
 //入力フォーム生成表示処理
 function make_form(){
@@ -77,7 +79,7 @@ function make_form(){
     //削除確認アラート表示
     function DeleteCheck() {
       if (confirm("削除を実行します")) { //アラートを表示し、OKがクリックされた場合
-        // window.location.href = "weblog_delete.php"; //アカウント削除処理ページへリダイレクト
+        window.location.href = "weblog_delete.php"; //アカウント削除処理ページへリダイレクト
       }
     }
   </script>

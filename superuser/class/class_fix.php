@@ -54,6 +54,7 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
   $class_obj->updata_class($select_class_data["class_id"], $schoolid_array["school_id"], $_POST["grade"], $_POST["class_name"]); //クラス情報修正
   unset($_SESSION['TeamA']['delete_class_id']);  //削除に利用しないため削除
   header("location: class.php"); //クラス管理トップページへリダイレクト
+  exit();
 }
 
 //クラスの情報を入力フォームの中身に代入して表示
