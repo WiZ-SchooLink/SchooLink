@@ -1,19 +1,31 @@
-<!--
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
+// session_start();  //セッションを利用
+$account_obj = new caccount();  //アカウントのオブジェクト作成
+$weblog_obj = new cweblog();  //ブログのオブジェクト作成
 
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 2;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "weblog_add-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
 
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
+//記事新規追加処理
+if (!empty($_POST["title"])) { //タイトルが入力されている場合
+  $weblog_obj->insert_weblog($_SESSION['TeamA']['account_id'], $_POST["title"], $_POST["textarea1"], $_FILES["input_file"]);  //記事を追加
+  header("location: weblog.php"); //アカウント管理トップページへリダイレクト
+  exit();
+}
 
-=========================================================
+?>
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -23,12 +35,14 @@
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    ブログ・ギャラリー
+    新規投稿
   </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+    name='viewport' />
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- CSS Files -->
   <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="../../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
@@ -36,7 +50,7 @@
   <link href="../../assets/demo/demo.css" rel="stylesheet" />
 
   <style>
-    table.table td a{
+    table.table td a {
       display: block;
     }
   </style>
@@ -74,17 +88,17 @@
             </a>
           </li>
           <li class="active ">
-            <a href="../weblog/weblog.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
           </li>
-          
+
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
-     
+
       <!-- End Navbar -->
       <div class="panel-header panel-header-sm">
       </div>
@@ -93,48 +107,32 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">ブログ・ギャラリー</h4>
+                <h4 class="card-title">新規追加</h4>
+                <form action="" method="post" name="weblog_add_form" class="weblog_add_form" enctype="multipart/form-data">
+
+                <div class="mb-3">
+                    <label class="form-label">タイトル</label>
+                    <input type="text" class="form-control" name="title" placeholder="title" required="" autofocus="" />
+                  </div>
+                  <div class="form-group">
+                    <label for="textarea1">本文</label>
+                    <textarea id="textarea1" name="textarea1" class="form-control"></textarea>
+                  </div>
+                  <label for="inputFile">添付ファイル</label>
+                  <div class="custom-file">
+                    <input type="file" multiple accept="image/*" class="custom-file-input" id="input_file" name="input_file[]"> 
+                    <label class="custom-file-label" for="inputFile">2Mbyte未満の画像ファイルをアップロードしてください</label>
+                  </div>
+                  <input type="submit" class="btn btn-primary" value="実行">
+                </div>
+                </form>
               </div>
               <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          2025年10月23日
-                        </td>
-                        <td>
-                            <a href="weblog_detail.html">社会科見学でゴミ処理場に行ってきました</a>
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                            2025年8月31日
-                        </td>
-                        <td>
-                            毎年恒例芋煮会の様子
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-
 
       <footer class="footer">
         <div class=" container-fluid ">
@@ -158,9 +156,11 @@
             </ul>
           </nav>
           <div class="copyright" id="copyright">
-            &copy; <script>
+            &copy;
+            <script>
               document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
+            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a
+              href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
           </div>
         </div>
       </footer>
@@ -178,15 +178,23 @@
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
+  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
 
     });
   </script>
+
+  <!-- アップロード画像情報の表示処理 -->
+  <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+  <script>
+    bsCustomFileInput.init();
+  </script>
+
 </body>
 
 </html>

@@ -10,4 +10,5 @@ $class_obj->delete_class($_SESSION['TeamA']['delete_class_id']);	//取得した�
 unset($_SESSION['TeamA']['delete_account_id']);	//削除が完了したクラスIDをセッションから削除
 
 header("location: class.php");	//削除後クラス管理ページへリダイレクト
+exit();
 ?>

@@ -1,19 +1,3 @@
-<!--
-
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
-
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <?php
 require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
@@ -21,50 +5,56 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
 // session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
+$weblog_obj = new cweblog();  //ブログのオブジェクト作成
 $class_obj = new cclass();  //クラスのオブジェクト作成
-$select_class_data = $class_obj->get_class_info($_GET["id"]); //クラス情報修正対象のクラスIDからそのクラスの情報を取得
-$schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全クラスの情報の配列を取得
-$_SESSION['TeamA']['delete_class_id'] =  $select_class_data["class_id"]; //削除時にクラスを識別するためにクラスIDをセッションに追加
+$weblog_data = $weblog_obj->get_weblog_content($_GET["id"]);  //ブログIDのから記事のデータを取得
+$filepath_list = $weblog_obj->get_weblog_filepath_list($_GET["id"]);  //ブログIDから記事に紐づく画像のパスのリストを取得
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 3;  //管理者権限を代入
+$flag = 2;  //管理者権限を代入
 //権限チェック処理
 if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
-  $_SESSION['TeamA']['error_message'] = "class_fix-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  $_SESSION['TeamA']['error_message'] = "weblog_detail-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+//対象記事チェック
+$account_classid = $class_obj->get_class_accoid($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスIDを取得
+//対象記事チェック処理
+if($account_classid["class_id"] != $weblog_data["class_id"]){ //アカウントのクラスIDとページのクラスIDが一致しない場合
+  $_SESSION['TeamA']['error_message'] = "weblog_detail-対象外の記事が指定されました";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
 }
 
-foreach($schoolname_array as $class_array){ //管理対象のクラスID
-  if($select_class_data["class_id"] == $class_array["class_id"]){ //修正するクラスIDと管理対象クラスIDが一致した場合
-    break;  //クラスIDチェックからbreak
+//記事タイトルの表示処理
+function get_title(){
+  global $weblog_data;
+  echo $weblog_data["title"]; //タイトル表示
+}
+
+//記事内容の表示処理
+function get_contents(){
+  global $weblog_data;
+  echo $weblog_data["contents_weblog"]; //記事内容表示
+}
+
+//記事に紐付いた画像の表示処理
+function get_filepath(){
+  global $filepath_list;
+  if(!empty($filepath_list)){ //記事に紐付いた画像が存在しているか判別
+    foreach($filepath_list as $filepath){ //ファイルパスのリストから取り出し
+      echo '<img src="' .$filepath["filepath"] .'" width="300">'; //画像の表示
+    }
   }
-  if ($class_array === end($schoolname_array)) {  //一致しないまま最後まで比較された場合
-    $_SESSION['TeamA']['error_message'] = "class_fix-管理外のクラスが指定されました";   //管理外のアカウントが指定されていた場合セッションにエラーメッセージを追加
-    header("location: ../../error.php"); //エラーページへリダイレクト
-    exit();
-  }
 }
 
-//クラス情報修正処理
-if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが入力されている場合
-  global $class_obj, $account_obj;
-  $schoolid_array = $account_obj->get_school_id($_SESSION['TeamA']['account_id']);  //自分の学校のIDを取得
-  $class_obj->updata_class($select_class_data["class_id"], $schoolid_array["school_id"], $_POST["grade"], $_POST["class_name"]); //クラス情報修正
-  unset($_SESSION['TeamA']['delete_class_id']);  //削除に利用しないため削除
-  header("location: class.php"); //クラス管理トップページへリダイレクト
-  exit();
+//記事修正ボタン表示処理
+function make_fixbutton(){
+  global $weblog_data;
+  echo '<a href="weblog_fix.php?id=' .$weblog_data["weblog_id"] .'" class="btn btn-primary">修正・削除</a>';  //ボタンの表示・リンクの生成
 }
-
-//クラスの情報を入力フォームの中身に代入して表示
-function make_form()
-{
-  global $select_class_data;
-  echo '<div class="mb-3"> <label class="form-label">学年</label> <input type="number" class="form-control" name="grade" placeholder="Grade" required="" autofocus="" max="6" value="' . $select_class_data["grade"] . '"/> </div>'
-    . '<div class="mb-3"> <label class="form-label">クラス名</label> <input type="text" class="form-control" name="class_name" placeholder="ClassName" required="" value="' . $select_class_data["class_name"] . '"/> </div>';
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -73,10 +63,12 @@ function make_form()
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
+  <link rel="icon" type="image/png" href="../../img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    クラス情報修正
+    <?php
+      get_title();  //記事タイトルの表示
+    ?>
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -93,17 +85,6 @@ function make_form()
       display: block;
     }
   </style>
-
-   <!-- 削除ボタン押下時 -->
-   <script language="javascript" type="text/javascript">
-    //削除確認アラート表示
-    function DeleteCheck() {
-      if (confirm("削除を実行します\nそのクラスに紐付いた配布物･アカウントも削除されます")) { //アラートを表示し、OKがクリックされた場合
-        window.location.href = "class_delete.php"; //クラス削除処理ページへリダイレクト
-      }
-    }
-  </script>
-
 </head>
 
 <body class="">
@@ -113,7 +94,6 @@ function make_form()
         Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
     -->
       <div class="logo">
-       
         <a href="../handouts/handouts.html" class="simple-text logo-normal">
           <center><img src="../../assets/img/SchooLink-2.png"alt="SchooLink"width="120" height="100"></center>
         </a>
@@ -121,15 +101,27 @@ function make_form()
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
           <li>
-            <a href="../account/account.php">
+            <a href="../handouts/handouts.html">
               <i class="now-ui-icons design_app"></i>
-              <p>アカウント管理</p>
+              <p>配布物</p>
+            </a>
+          </li>
+          <li>
+            <a href="../tables/tables.html">
+              <i class="now-ui-icons education_atom"></i>
+              <p>学校スケジュール</p>
+            </a>
+          </li>
+          <li>
+            <a href="../suggestion/suggestion.html">
+              <i class="now-ui-icons education_atom"></i>
+              <p>目安箱</p>
             </a>
           </li>
           <li class="active ">
-            <a href="../class/class.php">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
-              <p>クラス管理</p>
+              <p>ブログ・ギャラリー</p>
             </a>
           </li>
           
@@ -146,17 +138,24 @@ function make_form()
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> クラス情報修正</h4> 
-                </div>
+                <?php
+                  make_fixbutton(); //記事修正ボタン表示
+                ?>
+              </div>
               <div class="card-body">
-                <form action="" method="post" name="class_fix_form" class="class_fix_form">
-                  <?php
-                  //クラスの情報を入力フォームの中身に代入して表示する処理を実行
-                    make_form();
-                  ?>
-                  <input type="button" class="btn btn-danger" value="削除" onclick="DeleteCheck();">
-                  <input type="submit" class="btn btn-primary" value="実行">
-                </form>
+              <h4 class="card-title">
+                <?php
+                  get_title();  //記事タイトルの表示
+                ?>
+              </h4>
+              <p>
+                <?php
+                  get_contents(); //記事内容の表示
+                ?>
+              </p>
+              <?php
+                get_filepath(); //記事に紐付いた画像の表示
+              ?>
               </div>
             </div>
           </div>
