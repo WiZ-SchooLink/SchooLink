@@ -190,5 +190,3 @@ function make_list($row){
     });
   </script>
 </body>
-
-</html>

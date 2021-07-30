@@ -219,5 +219,3 @@ function get_filepath(){
     });
   </script>
 </body>
-
-</html>
