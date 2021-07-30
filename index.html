@@ -52,27 +52,14 @@
 </head>
 <body>
 
-<header>
-	<div class="navbar navbar-default navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<a href="index.html" class="navbar-brand">SchooLink​</a>
-				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button> 
-			</div>
-			<div class="navbar-collapse collapse" id="navbar-main">
-				<ul class="nav navbar-nav">
-					<li><a href="index.html">Top</a></li>
-					<li><a href="login/index.html">ログイン</a></li>
-					<li><a href="referral/index.html">導入紹介</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-</header>
+	<?php
+	require_once('assets/Smarty/smarty-3.1.39/libs/Smarty.class.php');
+	$smarty = new Smarty();
+	$smarty->template_dir = 'assets/Smarty/template';
+	$smarty->compile_dir = 'assets/Smarty/template_c';
+	
+	$smarty->display('header.tpl')
+	?>
 
 <div class="container">
 
@@ -82,8 +69,7 @@
 				<h1>SchooLink​</h1>
 				<p class="lead">SchooLink​は学校と親をつなぐサービスです</p>
 
-				<a href="login/index.html" class="btn btn-primary">ログイン</a>
-				<a href="referral/index.html" class="btn btn-success">導入紹介</a>
+				<a href="login/index.php" class="btn btn-primary">ログイン</a>
 
 			</div>
 		</div>
@@ -140,13 +126,7 @@
 		</div>
 	</div>
 
-	<div class="page-header" id="banner">
-		<h1>導入紹介</h1>
-		<p class="lead">新規に導入する学校を募集しています</p>
-
-		<a href="referral/index.html" class="btn btn-info">導入紹介</a>
-
-	</div>
+	
 
 </div>
 
