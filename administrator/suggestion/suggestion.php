@@ -1,29 +1,45 @@
-<!--
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
+// session_start();  //セッションを利用
+$account_obj = new caccount();  //アカウントのオブジェクト作成
+$suggestion_obj = new csuggestion();  //目安箱のオブジェクト作成
+$like_obj = new clikes();  //いいねのオブジェクト作成
+$suggestion_array = $suggestion_obj->get_suggestionbox_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントの目安箱の記事一覧を取得
 
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 2;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "suggestion-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
 
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
+//目安箱リスト一覧表示用処理
+function make_list($row){
+  global $like_obj;
+  $like_count = $like_obj->count_likes($row["suggestion_id"]);
+  echo '<tbody> <tr> <td>' .$row["date"] .'</td>' //日付表示
+        .'<td> <a href="suggestion_detail.php?id=' .$row["suggestion_id"] .'">' .$row["title"] .'</a> </td>'  //タイトル・リンクを表示
+        .'<td>' .$like_count["count(*)"] .'</td> </tr> </tbody>'; //いいね数表示
+}
 
-=========================================================
+?>
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
+  <link rel="icon" type="image/png" href="../../img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    目安箱（新規作成）
+    ブログ・ギャラリー（管理）
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -68,18 +84,17 @@
             </a>
           </li>
           <li class="active ">
-            <a href="../suggestion/suggestion.html">
+            <a href="../suggestion/suggestion.php">
               <i class="now-ui-icons education_atom"></i>
               <p>目安箱</p>
             </a>
           </li>
           <li>
-            <a href="../weblog/weblog.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
           </li>
-          
         </ul>
       </div>
     </div>
@@ -93,33 +108,35 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">新規追加</h4>
-                <form>
-                  <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">タイトル</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                  </div>
-                  <div class="form-group">
-                    <label for="textarea1">本文</label>
-                    <textarea id="textarea1" class="form-control"></textarea>
-                  </div>
-                  <div class="form-group">
-                    <label for="file1">添付ファイル追加</label>
-                    <input type="file" id="file1" class="form-control-file">
-                  </div>
-
-                </form>
-                <a href="suggestion_Check.html" class="btn btn-primary">入力確認</a>
+                <h4 class="card-title">ブログ・ギャラリー</h4>
               </div>
               <div class="card-body">
-
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead class=" text-primary">
+                      <th>
+                        日付
+                      </th>
+                      <th>
+                        タイトル
+                      </th>
+                      <th>
+                        いいね数
+                      </th>
+                    </thead>
+                    <?php
+                      //リスト表示用コード自動生成実行
+                      foreach ($suggestion_array as $row) {  //取得したリスト数分ループ
+                        make_list($row);  //一記事のデータを代入して実行
+                      }
+                      ?>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
 
       <footer class="footer">
         <div class=" container-fluid ">

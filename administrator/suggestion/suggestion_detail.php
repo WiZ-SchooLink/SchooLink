@@ -1,29 +1,70 @@
-<!--
+<?php
+require_once("inc_base.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
+require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
+// session_start();  //セッションを利用
+$account_obj = new caccount();  //アカウントのオブジェクト作成
+$suggestion_obj = new csuggestion();  //目安箱のオブジェクト作成
+$class_obj = new cclass();  //クラスのオブジェクト作成
+$suggestion_data = $suggestion_obj->get_suggestion_content($_GET["id"]);  //ブログIDから記事のデータを取得
+$filepath_list = $suggestion_obj->get_suggestion_filepath_list($_GET["id"]);  //ブログIDから記事に紐づく画像のパスのリストを取得
+$_SESSION['TeamA']['delete_suggestion_id'] =  $_GET["id"]; //削除時に記事を識別するために目安箱IDをセッションに追加
 
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+//権限チェック
+$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
+$flag = 2;  //管理者権限を代入
+//権限チェック処理
+if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+  $_SESSION['TeamA']['error_message'] = "suggestion_detail-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+//対象記事チェック
+$account_classid = $class_obj->get_class_accoid($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスIDを取得
+//対象記事チェック処理
+if($account_classid["class_id"] != $suggestion_data["class_id"]){ //アカウントのクラスIDとページのクラスIDが一致しない場合
+  $_SESSION['TeamA']['error_message'] = "suggestion_detail-対象外の記事が指定されました";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
 
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
+//記事タイトルの表示処理
+function get_title(){
+  global $suggestion_data;
+  echo $suggestion_data["title"]; //タイトル表示
+}
 
-=========================================================
+//記事内容の表示処理
+function get_contents(){
+  global $suggestion_data;
+  echo $suggestion_data["contents_suggestion"]; //記事内容表示
+}
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+//記事に紐付いた画像の表示処理
+function get_filepath(){
+  global $filepath_list;
+  if(!empty($filepath_list)){ //記事に紐付いた画像が存在しているか判別
+    foreach($filepath_list as $filepath){ //ファイルパスのリストから取り出し
+      echo '<img src="' .$filepath["filepath"] .'" width="300">'; //画像の表示
+    }
+  }
+}
 
--->
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/SchooLink-2.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-   目安箱
+    <?php
+      get_title();  //記事タイトルの表示
+    ?>
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -40,6 +81,17 @@
       display: block;
     }
   </style>
+
+  <!-- 削除ボタン押下時 -->
+  <script language="javascript" type="text/javascript">
+    //削除確認アラート表示
+    function DeleteCheck() {
+      if (confirm("削除を実行します")) { //アラートを表示し、OKがクリックされた場合
+        window.location.href = "suggestion_delete.php"; //アカウント削除処理ページへリダイレクト
+      }
+    }
+  </script>
+
 </head>
 
 <body class="">
@@ -74,7 +126,7 @@
             </a>
           </li>
           <li>
-            <a href="../weblog/weblog.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ・ギャラリー</p>
             </a>
@@ -91,51 +143,29 @@
       <div class="content">
         <div class="row">
           <div class="col-md-12">
-            <div class="card">
+          <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> 目安箱</h4>
+              <h4 class="card-title">
+                <?php
+                  get_title();  //記事タイトルの表示
+                ?>
+              </h4>
+              <input type="button" class="btn btn-danger" value="削除" onclick="DeleteCheck();">
               </div>
               <div class="card-body">
-                <a href="suggestion_add.html" class="btn btn-success">新規投稿</a>
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          2025年6月25日
-                        </td>
-                        <td>
-                            <a href="suggestion_detail.html">運動会を2日間開催にしてほしい</a>
-                        </td>
-                      </tr>
-                    </tbody>
-                    <tbody>
-                      <tr>
-                        <td>
-                            2025年8月15日
-                        </td>
-                        <td>
-                            近所の学校を集めて大規模合同文化祭を開きたい
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <p>
+                <?php
+                  get_contents(); //記事内容の表示
+                ?>
+              </p>
+              <?php
+                get_filepath(); //記事に紐付いた画像の表示
+              ?>
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-
 
       <footer class="footer">
         <div class=" container-fluid ">
