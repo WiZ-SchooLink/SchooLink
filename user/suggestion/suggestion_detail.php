@@ -47,9 +47,9 @@ function get_contents()
 function get_likebutton()
 {
   global $like_obj, $_GET, $_SESSION;
-  if($like_obj->check_likes($_SESSION['TeamA']['account_id'], $_GET["id"])){
+  if ($like_obj->check_likes($_SESSION['TeamA']['account_id'], $_GET["id"])) {
     echo '<a href="suggestion_like.php" class="btn btn-primary">いいね解除</a>';
-  }else{
+  } else {
     echo '<a href="suggestion_like.php" class="btn btn-primary">いいねする</a>';
   }
 }
@@ -76,6 +76,7 @@ function get_filepath()
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
+    SchooLink -
     <?php
     get_title();  //記事タイトルの表示
     ?>
