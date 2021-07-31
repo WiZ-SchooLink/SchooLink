@@ -864,7 +864,7 @@ class caccount extends crecord
 		$row = $obj->get_class_accoid($id);
 		$dataarr = array();
 		$dataarr['class_id'] = (int)$row['class_id'];
-		$dataarr['schedule_filepath'] = (string)$file_name_new;
+		$dataarr['contents_filepath'] = (string)$file_name_new;
 
 		$ins_obj = new cchange_ex();
 		$account_obj = new caccount();
@@ -872,7 +872,7 @@ class caccount extends crecord
 		if (empty($fileCheck)) {
 			$ins_obj->insert(false, 'schedule', $dataarr);
 		} else {
-			unlink($fileCheck['filepath']);
+			unlink($fileCheck['contents_filepath']);
 			$ins_obj->update(false, 'schedule', $dataarr, 'class_id=' . $row['class_id']);
 		}
 	}
