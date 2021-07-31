@@ -5,27 +5,30 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
 // session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$weblog_obj = new cweblog();  //ブログのオブジェクト作成
-$weblog_array = $weblog_obj->get_weblog_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスの記事一覧を取得
+$hand_obj = new chandout();
+
+$arr = $account_obj->get_school_userinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全アカウントの情報の配列を取得
+$class_id = ($arr[0]['class_id']);
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 1;  //ユーザー権限を代入
+$flag = 2;  //管理者権限を代入
 //権限チェック処理
 if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
-  $_SESSION['TeamA']['error_message'] = "weblog-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  $_SESSION['TeamA']['error_message'] = "handouts_add-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
 }
 
-//ブログリスト一覧表示用処理
-function make_list($row)
-{
-  echo '<tbody> <tr> <td>' . $row["date"] . '</td>' //日付表示
-    . '<td> <a href="weblog_detail.php?id=' . $row["weblog_id"] . '">' . $row["title"] . '</a> </td> </tr> </tbody>';  //タイトル・リンクを表示
+//記事新規追加処理
+if (!empty($_POST["title"])) { //タイトルが入力されている場合
+  $hand_obj->insert_handout($class_id, $_POST["title"], $_POST["textarea1"], $_FILES["input_file"]);  //記事を追加
+  header("location: handouts.php"); //アカウント管理トップページへリダイレクト
+  exit();
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -35,7 +38,7 @@ function make_list($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    SchooLink - ブログ
+    SchooLink - 配布物新規追加
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -64,13 +67,13 @@ function make_list($row)
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li>
+          <li class="active">
             <a href="../handouts/handouts.php">
               <i class="now-ui-icons education_atom"></i>
               <p>配布物</p>
             </a>
           </li>
-          <li class="active">
+          <li>
             <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ</p>
@@ -98,6 +101,7 @@ function make_list($row)
       </div>
     </div>
     <div class="main-panel" id="main-panel">
+
       <div class="panel-header panel-header-sm">
       </div>
       <div class="content">
@@ -105,33 +109,33 @@ function make_list($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">ブログ</h4>
+                <h4 class="card-title">配布物新規追加</h4>
+                <form action="" method="post" name="handout_add_form" class="handout_add_form" enctype="multipart/form-data">
+
+                  <div class="mb-3">
+                    <label class="form-label">タイトル</label>
+                    <input type="text" class="form-control" name="title" placeholder="title" required="" autofocus="" />
+                  </div>
+                  <div class="form-group">
+                    <label for="textarea1">本文</label>
+                    <textarea id="textarea1" name="textarea1" class="form-control"></textarea>
+                  </div>
+                  <label for="inputFile">添付ファイル</label>
+                  <div class="custom-file">
+                    <input type="file" multiple accept="image/*" class="custom-file-input" id="input_file" name="input_file[]">
+                    <label class="custom-file-label" for="inputFile">2Mbyte未満の画像ファイルをアップロードしてください</label>
+                  </div>
+                  <input type="submit" class="btn btn-primary" value="実行">
               </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <?php
-                    //リスト表示用コード自動生成実行
-                    foreach ($weblog_array as $row) {  //取得したリスト数分ループ
-                      make_list($row);  //一記事のデータを代入して実行
-                    }
-                    ?>
-                  </table>
-                </div>
-              </div>
+              </form>
+            </div>
+            <div class="card-body">
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
   </div>
   <!--   Core JS Files   -->
   <script src="../assets/js/core/jquery.min.js"></script>
@@ -145,7 +149,8 @@ function make_list($row)
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
+  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
     $(document).ready(function() {
@@ -153,6 +158,13 @@ function make_list($row)
       demo.initDashboardPageCharts();
     });
   </script>
+
+  <!-- アップロード画像情報の表示処理 -->
+  <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+  <script>
+    bsCustomFileInput.init();
+  </script>
+  
 </body>
 
 </html>

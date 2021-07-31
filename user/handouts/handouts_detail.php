@@ -3,26 +3,59 @@ require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
-// session_start();  //セッションを利用
+//session_start();  //セッションを利用
+$account_id = $_SESSION['TeamA']['account_id'];
+$id = $_GET['id'];
+
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$weblog_obj = new cweblog();  //ブログのオブジェクト作成
-$weblog_array = $weblog_obj->get_weblog_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスの記事一覧を取得
+$handout_obj = new chandout();  //配布物のオブジェクト作成
+$handfile_obj = new chandfile();  //ハンドファイルのオブジェクト作成
+$class_obj = new cclass();  //クラスのオブジェクト作成
+
+$arr = $handout_obj->get_handout_constents($id);
+$filepath_list = $handfile_obj->get_handfile($id);  //ブログIDから記事に紐づく画像のパスのリストを取得
 
 //権限チェック
-$account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 1;  //ユーザー権限を代入
+$account_flag_arr = $account_obj->get_flg($account_id);  //ログイン中のアカウントの権限を取得
+$flag = 1;  //ユーザーのflag
 //権限チェック処理
 if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
-  $_SESSION['TeamA']['error_message'] = "weblog-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  $_SESSION['TeamA']['error_message'] = "handouts_detail-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+//対象記事チェック
+$account_classid = $class_obj->get_class_accoid($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスIDを取得
+//対象記事チェック処理
+if($account_classid["class_id"] != $arr["class_id"]){ //アカウントのクラスIDとページのクラスIDが一致しない場合
+  $_SESSION['TeamA']['error_message'] = "handouts_detail-対象外の記事が指定されました";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
 }
 
-//ブログリスト一覧表示用処理
-function make_list($row)
+function make_list($row, $id)
 {
-  echo '<tbody> <tr> <td>' . $row["date"] . '</td>' //日付表示
-    . '<td> <a href="weblog_detail.php?id=' . $row["weblog_id"] . '">' . $row["title"] . '</a> </td> </tr> </tbody>';  //タイトル・リンクを表示
+  echo '<br>';
+  if ($row["handout_id"] == $id) {
+    echo $row["constents_handout"];
+  }
+}
+
+function make_title($row, $id)
+{
+  if ($row["handout_id"] == $id) {
+    echo $row["title"];
+  }
+}
+
+//記事に紐付いた画像の表示処理
+function get_filepath(){
+  global $filepath_list;
+  if(!empty($filepath_list)){ //記事に紐付いた画像が存在しているか判別
+    foreach($filepath_list as $filepath){ //ファイルパスのリストから取り出し
+      echo '<img src="' .$filepath["filepath"] .'" width="300">'; //画像の表示
+    }
+  }
 }
 
 ?>
@@ -35,7 +68,11 @@ function make_list($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    SchooLink - ブログ
+    SchooLink -
+    <?php
+    echo $arr["title"];
+
+    ?>
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -64,13 +101,13 @@ function make_list($row)
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li>
+          <li class="active">
             <a href="../handouts/handouts.php">
               <i class="now-ui-icons education_atom"></i>
               <p>配布物</p>
             </a>
           </li>
-          <li class="active">
+          <li>
             <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ</p>
@@ -98,6 +135,7 @@ function make_list($row)
       </div>
     </div>
     <div class="main-panel" id="main-panel">
+
       <div class="panel-header panel-header-sm">
       </div>
       <div class="content">
@@ -105,27 +143,21 @@ function make_list($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">ブログ</h4>
+                <h4 class="card-title">
+                  <?php
+                  echo $arr["title"];
+                  ?>
+                </h4>
+                <p>
+                  <?php
+                  echo $arr["contents_handout"];
+                  ?>
+                </p>
+                <?php
+                get_filepath(); //記事に紐付いた画像の表示
+                ?>
               </div>
               <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <?php
-                    //リスト表示用コード自動生成実行
-                    foreach ($weblog_array as $row) {  //取得したリスト数分ループ
-                      make_list($row);  //一記事のデータを代入して実行
-                    }
-                    ?>
-                  </table>
-                </div>
               </div>
             </div>
           </div>

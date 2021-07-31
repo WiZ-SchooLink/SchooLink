@@ -14,7 +14,8 @@ require_once("config.php");
 //--------------------------------------------------------------------------------------
 ///	ユーティリティ関数群(スタティック呼出をする)
 //--------------------------------------------------------------------------------------
-class cutil {
+class cutil
+{
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief	指定したURLにリダイレクトして終了
@@ -22,8 +23,9 @@ class cutil {
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function redirect_exit($url){
-		$str = "Location: ".  $url;
+	public static function redirect_exit($url)
+	{
+		$str = "Location: " .  $url;
 		header($str);
 		//リダイレクトしたのでexit
 		exit();
@@ -35,9 +37,10 @@ class cutil {
 	@return	true　数字　false数字以外が混じってる
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function is_number($value){
-		if($value == '')return false;
-		if(preg_match('/^[0-9]+$/',$value)){
+	public static function is_number($value)
+	{
+		if ($value == '') return false;
+		if (preg_match('/^[0-9]+$/', $value)) {
 			return true;
 		}
 		return false;
@@ -49,9 +52,10 @@ class cutil {
 	@return	true　数字かハイフン　false数字以外が混じってる
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function is_num_hyphen($value){
-		if($value == '')return false;
-		if(preg_match('/^[-0-9]+$/',$value)){
+	public static function is_num_hyphen($value)
+	{
+		if ($value == '') return false;
+		if (preg_match('/^[-0-9]+$/', $value)) {
 			return true;
 		}
 		return false;
@@ -63,10 +67,11 @@ class cutil {
 	@return	true　半角　false半角以外が混じってる
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function is_hankaku($value){
+	public static function is_hankaku($value)
+	{
 		$strlen = strlen($value);
-		$mbstrlen = mb_strlen($value,PHP_CHARSET);
-		if($strlen == $mbstrlen){
+		$mbstrlen = mb_strlen($value, PHP_CHARSET);
+		if ($strlen == $mbstrlen) {
 			return true;
 		}
 		return false;
@@ -80,9 +85,12 @@ class cutil {
 	@return	条件に合えばtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function number_range($value,$from,$to){
-		if(cutil::is_number($value) &&
-			$value >= $from && $value <= $to){
+	public static function number_range($value, $from, $to)
+	{
+		if (
+			cutil::is_number($value) &&
+			$value >= $from && $value <= $to
+		) {
 			return true;
 		}
 		return false;
@@ -96,9 +104,10 @@ class cutil {
 	@return	条件に合えばtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function chk_mb_strlen_size($str,$from,$to){
-		$len = mb_strlen($str,PHP_CHARSET);
-		if($len >= $from && $len <= $to){
+	public static function chk_mb_strlen_size($str, $from, $to)
+	{
+		$len = mb_strlen($str, PHP_CHARSET);
+		if ($len >= $from && $len <= $to) {
 			return true;
 		}
 		return false;
@@ -112,9 +121,10 @@ class cutil {
 	@return	条件に合えばtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function chk_strlen_size($str,$from,$to){
+	public static function chk_strlen_size($str, $from, $to)
+	{
 		$len = strlen($str);
-		if($len >= $from && $len <= $to){
+		if ($len >= $from && $len <= $to) {
 			return true;
 		}
 		return false;
@@ -126,8 +136,9 @@ class cutil {
 	@return	変換後の文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function escape($value){
-		return htmlspecialchars($value,ENT_QUOTES,PHP_CHARSET);
+	public static function escape($value)
+	{
+		return htmlspecialchars($value, ENT_QUOTES, PHP_CHARSET);
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -136,7 +147,8 @@ class cutil {
 	@return	変換後の文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function ret2br($str){
+	public static function ret2br($str)
+	{
 		$order = array("\r\n", "\n", "\r");
 		$replace = '<br />';
 		return str_replace($order, $replace, $str);
@@ -148,7 +160,8 @@ class cutil {
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function echo_ret2br($str){
+	public static function echo_ret2br($str)
+	{
 		echo cutil::ret2br($str);
 	}
 	//--------------------------------------------------------------------------------------
@@ -158,12 +171,13 @@ class cutil {
 	@return	暗号化した文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function pw_encode($password){
+	public static function pw_encode($password)
+	{
 		$seed = null;
-		for ($i = 1; $i <= 8; $i++){
-			$seed .= substr('0123456789abcdef',rand(0,15),1);
+		for ($i = 1; $i <= 8; $i++) {
+			$seed .= substr('0123456789abcdef', rand(0, 15), 1);
 		}
-		return hash("md5",$seed . $password) . $seed;
+		return hash("md5", $seed . $password) . $seed;
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -173,12 +187,12 @@ class cutil {
 	@return	成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function pw_check($password,$stored_value){
-		$stored_seed = substr($stored_value,32,8);
-		if(hash("md5",$stored_seed . $password) . $stored_seed == $stored_value){
+	public static function pw_check($password, $stored_value)
+	{
+		$stored_seed = substr($stored_value, 32, 8);
+		if (hash("md5", $stored_seed . $password) . $stored_seed == $stored_value) {
 			return true;
-		}
-		else{
+		} else {
 			return false;
 		}
 	}
@@ -189,11 +203,11 @@ class cutil {
 	@return	成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function chek_mail_format($mail){
-		if(preg_match('/^[-a-zA-Z0-9_\.]+@([-a-zA-Z0-9_\.]+\.[-a-zA-Z0-9_]+$)/',$mail)){
+	public static function chek_mail_format($mail)
+	{
+		if (preg_match('/^[-a-zA-Z0-9_\.]+@([-a-zA-Z0-9_\.]+\.[-a-zA-Z0-9_]+$)/', $mail)) {
 			return true;
-		}
-		else{
+		} else {
 			return false;
 		}
 	}
@@ -208,12 +222,13 @@ class cutil {
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public static function mb_send_mail_chk($To, $Subject, $Message, $Headers,$brflg = false){
+	public static function mb_send_mail_chk($To, $Subject, $Message, $Headers, $brflg = false)
+	{
 		$retcode = '';
-		if($brflg){
+		if ($brflg) {
 			$retcode = '<br />';
 		}
-		$str =<<< END_BLOCK
+		$str = <<< END_BLOCK
 {$retcode}
 --start-----mb_send_mail_chk--------------{$retcode}
 To: {$To}{$retcode}
@@ -226,4 +241,3 @@ END_BLOCK;
 		echo $str;
 	}
 }
-

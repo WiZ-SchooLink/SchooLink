@@ -1,19 +1,3 @@
-<!--
-
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
-
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <?php
 require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
@@ -25,9 +9,9 @@ $class_obj = new cclass();  //クラスのオブジェクト作成
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 3;  //管理者権限を代入
+$flag = 3;  //最上位管理者権限を代入
 //権限チェック処理
-if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
   $_SESSION['TeamA']['error_message'] = "class_add-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
@@ -39,6 +23,7 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
   $schoolid_array = $account_obj->get_school_id($_SESSION['TeamA']['account_id']);  //自分の学校のIDを取得
   $class_obj->insert_class($schoolid_array["school_id"], $_POST["grade"], $_POST["class_name"]); //クラス新規追加
   header("location: class.php"); //クラス管理トップページへリダイレクト
+  exit();
 }
 
 ?>
@@ -52,7 +37,7 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    クラス新規追加
+    SchooLink - クラス新規追加
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -65,7 +50,7 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
   <link href="../../assets/demo/demo.css" rel="stylesheet" />
 
   <style>
-    table.table td a{
+    table.table td a {
       display: block;
     }
   </style>
@@ -74,13 +59,9 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
 <body class="">
   <div class="wrapper ">
     <div class="sidebar" data-color="orange">
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
-    -->
       <div class="logo">
-       
-        <a href="../handouts/handouts.html" class="simple-text logo-normal">
-          <center><img src="../../assets/img/SchooLink-2.png"alt="SchooLink"width="120" height="100"></center>
+        <a href="../../index.php" class="simple-text logo-normal">
+          <center><img src="../../assets/img/SchooLink-2.png" alt="SchooLink" width="120" height="100"></center>
         </a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
@@ -97,13 +78,11 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
               <p>クラス管理</p>
             </a>
           </li>
-          
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
-     
-      <!-- End Navbar -->
+
       <div class="panel-header panel-header-sm">
       </div>
       <div class="content">
@@ -111,13 +90,13 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title"> クラス新規追加</h4> 
-                </div>
+                <h4 class="card-title"> クラス新規追加</h4>
+              </div>
               <div class="card-body">
                 <form action="" method="post" name="class_add_form" class="class_add_form">
                   <div class="mb-3">
                     <label class="form-label">学年</label>
-                    <input type="number" class="form-control" name="grade" placeholder="Grade" required="" autofocus="" max="6"/>
+                    <input type="number" class="form-control" name="grade" placeholder="Grade" required="" autofocus="" max="6" />
                   </div>
                   <div class="mb-3">
                     <label class="form-label">クラス名</label>
@@ -130,35 +109,6 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
           </div>
         </div>
       </div>
-
-      <footer class="footer">
-        <div class=" container-fluid ">
-          <nav>
-            <ul>
-              <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
-                </a>
-              </li>
-              <li>
-                <a href="http://presentation.creative-tim.com">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="http://blog.creative-tim.com">
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </nav>
-          <div class="copyright" id="copyright">
-            &copy; <script>
-              document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
-          </div>
-        </div>
-      </footer>
     </div>
   </div>
   <!--   Core JS Files   -->
@@ -179,7 +129,6 @@ if (!empty($_POST["grade"]) and !empty($_POST["class_name"])) { //すべてが�
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
-
     });
   </script>
 </body>

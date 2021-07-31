@@ -5,27 +5,41 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
 // session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$weblog_obj = new cweblog();  //ブログのオブジェクト作成
-$weblog_array = $weblog_obj->get_weblog_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスの記事一覧を取得
+$class_obj = new cclass();  //クラスのオブジェクト作成
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 1;  //ユーザー権限を代入
+$flag = 2;  //管理者権限を代入
 //権限チェック処理
 if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
-  $_SESSION['TeamA']['error_message'] = "weblog-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  $_SESSION['TeamA']['error_message'] = "table_fix-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
 }
 
-//ブログリスト一覧表示用処理
-function make_list($row)
-{
-  echo '<tbody> <tr> <td>' . $row["date"] . '</td>' //日付表示
-    . '<td> <a href="weblog_detail.php?id=' . $row["weblog_id"] . '">' . $row["title"] . '</a> </td> </tr> </tbody>';  //タイトル・リンクを表示
+$err_flag = false;  //エラー表示判別用フラグ
+//時間割画像アップロード処理
+if (!empty($_FILES)) {  //修正をクリックした場合
+  if ($_FILES["input_file"]["size"] > 0) {  //画像が存在する場合
+    $account_obj->insert_schedule($_SESSION['TeamA']['account_id'], $_FILES["input_file"]);  //献立表画像をアップロード
+    header("location: tables.php"); //献立表トップページへリダイレクト
+    exit();
+  } else {
+    $err_flag = true; //エラー
+  }
 }
 
+//エラー表示処理
+function error_message()
+{
+  global $err_flag;
+  if ($err_flag) {
+    echo "画像のアップロード可能ファイルサイズは2Mbyteまでです";
+    $err_flag = false;
+  }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -35,7 +49,7 @@ function make_list($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    SchooLink - ブログ
+    SchooLink - 時間割修正
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -70,13 +84,13 @@ function make_list($row)
               <p>配布物</p>
             </a>
           </li>
-          <li class="active">
+          <li>
             <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ</p>
             </a>
           </li>
-          <li>
+          <li class="active">
             <a href="../tables/tables.php">
               <i class="now-ui-icons education_atom"></i>
               <p>時間割</p>
@@ -105,27 +119,24 @@ function make_list($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">ブログ</h4>
+                <h4 class="card-title">時間割修正</h4>
+                <form action="" method="post" name="schedule_fix_form" class="schedule_fix_form" enctype="multipart/form-data">
+                  <div class="form-group">
+                    <label for="inputFile">時間割画像</label>
+                    <div class="custom-file">
+                      <input type="file" accept="image/*" class="custom-file-input" id="input_file" name="input_file">
+                      <label class="custom-file-label" for="inputFile">画像ファイルをアップロードしてください</label>
+                    </div>
+                  </div>
+                  <input type="submit" class="btn btn-primary" value="実行">
+                </form>
+                <p>
+                  <?php
+                  error_message();  //エラー表示
+                  ?>
+                </p>
               </div>
               <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <?php
-                    //リスト表示用コード自動生成実行
-                    foreach ($weblog_array as $row) {  //取得したリスト数分ループ
-                      make_list($row);  //一記事のデータを代入して実行
-                    }
-                    ?>
-                  </table>
-                </div>
               </div>
             </div>
           </div>
@@ -145,13 +156,19 @@ function make_list($row)
   <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
+  <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script>
+  <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
     });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+  <script>
+    bsCustomFileInput.init();
   </script>
 </body>
 

@@ -6,5 +6,3 @@ if(!isset($_SESSION['TeamA']['account_id'])){
 	header("location: ../../login/index.php"); //ログインページへリダイレクト
 	exit();
 }
-
-?>

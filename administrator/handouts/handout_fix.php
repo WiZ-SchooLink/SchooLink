@@ -5,37 +5,60 @@ require_once($CMS_COMMON_INCLUDE_DIR . "login_check.php");
 
 // session_start();  //セッションを利用
 $account_obj = new caccount();  //アカウントのオブジェクト作成
-$weblog_obj = new cweblog();  //ブログのオブジェクト作成
-$weblog_array = $weblog_obj->get_weblog_data($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスの記事一覧を取得
+$hand_obj = new chandout();
+$class_obj = new cclass();  //クラスのオブジェクト作成
+
+$hand_data = $hand_obj->get_handout_constents($_GET["id"]);
+$arr = $account_obj->get_school_userinfo($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの学校の全アカウントの情報の配列を取得
+$class_id = ($arr[0]['class_id']);
+
+$_SESSION['TeamA']['delete_handout_id'] =  $_GET["id"]; //
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 1;  //ユーザー権限を代入
+$flag = 2;  //管理者権限を代入
 //権限チェック処理
 if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
-  $_SESSION['TeamA']['error_message'] = "weblog-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  $_SESSION['TeamA']['error_message'] = "handout_fix-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
+  header("location: ../../error.php"); //エラーページへリダイレクト
+  exit();
+}
+//対象記事チェック
+$account_classid = $class_obj->get_class_accoid($_SESSION['TeamA']['account_id']); //ログイン中のアカウントのクラスIDを取得
+//対象記事チェック処理
+if ($account_classid["class_id"] != $hand_data["class_id"]) { //アカウントのクラスIDとページのクラスIDが一致しない場合
+  $_SESSION['TeamA']['error_message'] = "handout_fix-対象外の記事が指定されました";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
 }
 
-//ブログリスト一覧表示用処理
-function make_list($row)
+if (!empty($_POST["title"])) { //タイトルが入力されている場合
+  $hand_obj->updata_handout($class_id, $_GET["id"], $_POST["title"], $_POST["textarea1"], $_FILES["input_file"]);  //記事を追加
+  unset($_SESSION['TeamA']['delete_handout_id']);  //削除に利用しないため削除
+  header("location: handouts.php"); //アカウント管理トップページへリダイレクト
+  exit();
+}
+
+function make_form()
 {
-  echo '<tbody> <tr> <td>' . $row["date"] . '</td>' //日付表示
-    . '<td> <a href="weblog_detail.php?id=' . $row["weblog_id"] . '">' . $row["title"] . '</a> </td> </tr> </tbody>';  //タイトル・リンクを表示
+  global $hand_data;
+  echo '<div class="mb-3"> <label class="form-label">タイトル</label> <input type="text" class="form-control" name="title" placeholder="title" required="" autofocus="" value="' . $hand_data["title"] . '"/>'
+    . '</div> <div class="form-group"> <label for="textarea1">本文</label> <textarea id="textarea1" name="textarea1" class="form-control">' . $hand_data["contents_handout"] . '</textarea> </div>'
+    . '<label for="inputFile">添付ファイル</label> <div class="custom-file"> <input type="file" multiple accept="image/*" class="custom-file-input" id="input_file" name="input_file[]"> <label class="custom-file-label" for="inputFile">画像ファイルを削除する場合は添付せずに実行してください 2Mbyte未満の画像ファイルをアップロードしてください</label> </div>';
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
   <meta charset="utf-8" />
   <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
+  <link rel="icon" type="image/png" href="../../img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    SchooLink - ブログ
+    SchooLink - 配布物修正・削除
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -52,10 +75,20 @@ function make_list($row)
       display: block;
     }
   </style>
+
+  <!-- 削除ボタン押下時 -->
+  <script language="javascript" type="text/javascript">
+    //削除確認アラート表示
+    function DeleteCheck() {
+      if (confirm("削除を実行します")) { //アラートを表示し、OKがクリックされた場合
+        window.location.href = "handout_delete.php"; //アカウント削除処理ページへリダイレクト
+      }
+    }
+  </script>
 </head>
 
 <body class="">
-  <div class="wrapper">
+  <div class="wrapper ">
     <div class="sidebar" data-color="orange">
       <div class="logo">
         <a href="../../index.php" class="simple-text logo-normal">
@@ -64,13 +97,13 @@ function make_list($row)
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li>
+          <li class="active">
             <a href="../handouts/handouts.php">
               <i class="now-ui-icons education_atom"></i>
               <p>配布物</p>
             </a>
           </li>
-          <li class="active">
+          <li>
             <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
               <p>ブログ</p>
@@ -98,6 +131,7 @@ function make_list($row)
       </div>
     </div>
     <div class="main-panel" id="main-panel">
+
       <div class="panel-header panel-header-sm">
       </div>
       <div class="content">
@@ -105,28 +139,20 @@ function make_list($row)
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="card-title">ブログ</h4>
+                <h4 class="card-title">配布物修正・削除</h4>
+                <form action="" method="post" name="handout_fix_form" class="handout_fix_form" enctype="multipart/form-data">
+
+                  <?php
+                  //クラスの情報を入力フォームの中身に代入して表示する処理を実行
+                  make_form();
+                  ?>
+
+                  <input type="button" class="btn btn-danger" value="削除" onclick="DeleteCheck();">
+                  <input type="submit" class="btn btn-primary" value="実行">
               </div>
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead class=" text-primary">
-                      <th>
-                        日付
-                      </th>
-                      <th>
-                        タイトル
-                      </th>
-                    </thead>
-                    <?php
-                    //リスト表示用コード自動生成実行
-                    foreach ($weblog_array as $row) {  //取得したリスト数分ループ
-                      make_list($row);  //一記事のデータを代入して実行
-                    }
-                    ?>
-                  </table>
-                </div>
-              </div>
+              </form>
+            </div>
+            <div class="card-body">
             </div>
           </div>
         </div>
@@ -152,6 +178,12 @@ function make_list($row)
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
     });
+  </script>
+
+  <!-- アップロード画像情報の表示処理 -->
+  <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+  <script>
+    bsCustomFileInput.init();
   </script>
 </body>
 

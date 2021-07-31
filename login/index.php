@@ -55,6 +55,7 @@ require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
 session_start();  //セッションを利用
 
 $_SESSION['TeamA'] = array(); //セッション初期化
+$error_message = "";  //エラーメッセージ表示用
 
 //ログイン名とパスワードの入力値を取得してアカウントIDを取得
 if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン名とパスワードが入力されている場合
@@ -65,11 +66,11 @@ if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン
     $arr = $obj->get_flg($_SESSION['TeamA']['account_id']); //セッション内のアカウントIDを利用して権限判別値配列を取得
     switch ($arr[0]["user_flag"]) { //権限判別値配列から権限判別値を取り出して判別
       case "1": //ユーザー権限
-        header("location: ../user/handouts/handouts.html"); //ユーザー用の配布物ページへリダイレクト
+        header("location: ../user/handouts/handouts.php"); //ユーザー用の配布物ページへリダイレクト
         exit();
         break;
       case "2": //管理者権限
-        header("location: ../administrator/handouts/handouts.html");  //管理者用の配布物ページへリダイレクト
+        header("location: ../administrator/handouts/handouts.php");  //管理者用の配布物ページへリダイレクト
         exit();
         break;
       case "3": //最上位管理者権限
@@ -78,9 +79,17 @@ if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン
         break;
     }
   } else {  //アカウントIDの配列に中身が無い場合(ログインが失敗した場合)
-    echo "ユーザー名かパスワードが違います";
+    $error_message = "ユーザー名かパスワードが違います";
   }
 }
+
+//エラーメッセージ表示
+function echo_error()
+{
+  global $error_message;
+  echo $error_message;
+}
+
 ?>
 
 <link rel="stylesheet" type="text/css" href="../assets/css/bootstrap.css">
@@ -98,7 +107,11 @@ if (!empty($_POST["LoginName"]) and !empty($_POST["Password"])) { //ログイン
       <input type="password" class="form-control" name="Password" placeholder="Password" required="" />
 
       <input type="submit" class="btn btn-primary" value="ログイン">
-      <a href="../referral/index.html" class="btn btn-secondry">導入紹介はこちら</a>
+      <p>
+        <?php
+        echo_error(); //エラーメッセージ表示
+        ?>
+      </p>
     </form>
   </div>
 </div>
