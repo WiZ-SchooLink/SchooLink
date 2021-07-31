@@ -16,14 +16,16 @@ $DB_PDO = new cpdo();
 //--------------------------------------------------------------------------------------
 /// PDOクラス
 //--------------------------------------------------------------------------------------
-class cpdo extends PDO{
+class cpdo extends PDO
+{
 	private $m_display_errors = false;
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief  コンストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct(){
+	public function __construct()
+	{
 		try {
 			$engine = DB_RDBMS;
 			$host = DB_HOST;
@@ -33,19 +35,19 @@ class cpdo extends PDO{
 			$pass = DB_PASS;
 			//接続
 			$dsn = "{$engine}:host={$host};dbname={$database};charset={$charset}";
-			parent::__construct($dsn,$user,$pass);
-			$this->setAttribute (PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			if(DB_MYSQL_SET_NAMES == 1){
-				$this->beginTransaction ();
+			parent::__construct($dsn, $user, $pass);
+			$this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			if (DB_MYSQL_SET_NAMES == 1) {
+				$this->beginTransaction();
 				$this->exec("SET NAMES {$charset}");
 				$this->commit();
 			}
-			if(ini_get('display_errors')){
+			if (ini_get('display_errors')) {
 				$this->m_display_errors = true;
 			}
 			$this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-		} catch (PDOException $e){
-			if($this->m_display_errors){
+		} catch (PDOException $e) {
+			if ($this->m_display_errors) {
 				echo '接続できません: ' . $e->getMessage();
 			}
 			exit();
@@ -57,7 +59,8 @@ class cpdo extends PDO{
 	@return display_errorsならtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public function is_display_errors(){
+	public function is_display_errors()
+	{
 		return $this->m_display_errors;
 	}
 	//--------------------------------------------------------------------------------------
@@ -65,14 +68,16 @@ class cpdo extends PDO{
 	@brief  デストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __destruct(){
+	public function __destruct()
+	{
 	}
 }
 
 //--------------------------------------------------------------------------------------
 /// sqlのコアクラス
 //--------------------------------------------------------------------------------------
-class csqlcore {
+class csqlcore
+{
 	//エラーメッセージ等の情報配列
 	public $retarr;
 	//結果リソースの保持
@@ -82,7 +87,8 @@ class csqlcore {
 	@brief  コンストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct(){
+	public function __construct()
+	{
 		$this->retarr = array();
 	}
 	//--------------------------------------------------------------------------------------
@@ -92,27 +98,24 @@ class csqlcore {
 	@return 装飾後の文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function make_safe_sqlstr($value){
+	public function make_safe_sqlstr($value)
+	{
 		global $DB_PDO;
 		$retstr = "";
-		if(is_string($value)){
+		if (is_string($value)) {
 			$retstr = $DB_PDO->quote($value);
 			return $retstr;
-		}
-		else if(is_int($value)){
+		} else if (is_int($value)) {
 			$retstr = $value;
 			return $retstr;
-		}
-		else if(is_bool($value)){
-			if($value){
+		} else if (is_bool($value)) {
+			if ($value) {
 				$retstr = "1";
-			}
-			else{
+			} else {
 				$retstr = "0";
 			}
 			return $retstr;
-		}
-		else if(is_float($value)){
+		} else if (is_float($value)) {
 			$retstr = "'" . $value . "'";
 			return $retstr;
 		}
@@ -125,15 +128,16 @@ class csqlcore {
 	@return 装飾後の文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function make_safe_likestr($value){
+	public function make_safe_likestr($value)
+	{
 		global $DB_PDO;
 		$retstr = "";
-		switch(gettype($value)){
+		switch (gettype($value)) {
 			case "string":
 				$retstr = $DB_PDO->quote("%{$value}%");
-			break;
+				break;
 			default:
-			break;
+				break;
 		}
 		return $retstr;
 	}
@@ -144,29 +148,26 @@ class csqlcore {
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	protected function crecord_core_pres($values = array()){
+	protected function crecord_core_pres($values = array())
+	{
 		global $DB_PDO;
-		try{
-			$DB_PDO->beginTransaction ();
+		try {
+			$DB_PDO->beginTransaction();
 			$this->res = $DB_PDO->prepare($this->retarr['sql']);
-			if(is_array($values) && count($values) > 0){
-				foreach($values as $key => $val){
-					if(is_int($val)){
+			if (is_array($values) && count($values) > 0) {
+				foreach ($values as $key => $val) {
+					if (is_int($val)) {
 						$param = PDO::PARAM_INT;
-					}
-					elseif(is_bool($val)){
+					} elseif (is_bool($val)) {
 						$param = PDO::PARAM_BOOL;
-					}
-					elseif(is_null($val)){
+					} elseif (is_null($val)) {
 						$param = PDO::PARAM_NULL;
-					}
-					elseif(is_string($val)){
+					} elseif (is_string($val)) {
 						$param = PDO::PARAM_STR;
-					}
-					else{
+					} else {
 						$param = FALSE;
 					}
-					if($param !== false){
+					if ($param !== false) {
 						$this->res->bindValue($key + 1, $val, $param);
 					}
 				}
@@ -174,10 +175,9 @@ class csqlcore {
 			$this->res->execute();
 			$DB_PDO->commit();
 			return true;
-		} 
-		catch (PDOException $e){
+		} catch (PDOException $e) {
 			$DB_PDO->rollback();
-			if($DB_PDO->is_display_errors()){
+			if ($DB_PDO->is_display_errors()) {
 				echo 'SELECT文が実行できません: ' . $e->getMessage();
 			}
 			exit();
@@ -193,43 +193,39 @@ class csqlcore {
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	protected function cchange_core($values = array(),$is_insert = false){
+	protected function cchange_core($values = array(), $is_insert = false)
+	{
 		global $DB_PDO;
-		try{
-			$DB_PDO->beginTransaction ();
+		try {
+			$DB_PDO->beginTransaction();
 			$this->res = $DB_PDO->prepare($this->retarr['sql']);
-			if(is_array($values) && count($values) > 0){
-				foreach($values as $key => $val){
-					if(is_int($val)){
+			if (is_array($values) && count($values) > 0) {
+				foreach ($values as $key => $val) {
+					if (is_int($val)) {
 						$param = PDO::PARAM_INT;
-					}
-					elseif(is_bool($val)){
+					} elseif (is_bool($val)) {
 						$param = PDO::PARAM_BOOL;
-					}
-					elseif(is_null($val)){
+					} elseif (is_null($val)) {
 						$param = PDO::PARAM_NULL;
-					}
-					elseif(is_string($val)){
+					} elseif (is_string($val)) {
 						$param = PDO::PARAM_STR;
-					}
-					else{
+					} else {
 						$param = FALSE;
 					}
-					if($param !== false){
+					if ($param !== false) {
 						$this->res->bindValue($key, $val, $param);
 					}
 				}
 			}
 			$this->res->execute();
-			if($is_insert){
+			if ($is_insert) {
 				$this->retarr['lastinsert'] = $DB_PDO->lastInsertId();
 			}
 			$DB_PDO->commit();
 			return true;
-		}
-		catch (PDOException $e){
+		} catch (PDOException $e) {
 			$DB_PDO->rollback();
-			if($DB_PDO->is_display_errors()){
+			if ($DB_PDO->is_display_errors()) {
 				echo '更新系のSQLが実行できません: ' . $e->getMessage();
 			}
 			exit();
@@ -244,43 +240,39 @@ class csqlcore {
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	protected function cchange_core_pres($values = array(),$is_insert = false){
+	protected function cchange_core_pres($values = array(), $is_insert = false)
+	{
 		global $DB_PDO;
-		try{
-			$DB_PDO->beginTransaction ();
+		try {
+			$DB_PDO->beginTransaction();
 			$this->res = $DB_PDO->prepare($this->retarr['sql']);
-			if(is_array($values) && count($values) > 0){
-				foreach($values as $key => $val){
-					if(is_int($val)){
+			if (is_array($values) && count($values) > 0) {
+				foreach ($values as $key => $val) {
+					if (is_int($val)) {
 						$param = PDO::PARAM_INT;
-					}
-					elseif(is_bool($val)){
+					} elseif (is_bool($val)) {
 						$param = PDO::PARAM_BOOL;
-					}
-					elseif(is_null($val)){
+					} elseif (is_null($val)) {
 						$param = PDO::PARAM_NULL;
-					}
-					elseif(is_string($val)){
+					} elseif (is_string($val)) {
 						$param = PDO::PARAM_STR;
-					}
-					else{
+					} else {
 						$param = FALSE;
 					}
-					if($param !== false){
+					if ($param !== false) {
 						$this->res->bindValue($key + 1, $val, $param);
 					}
 				}
 			}
 			$this->res->execute();
-			if($is_insert){
+			if ($is_insert) {
 				$this->retarr['lastinsert'] = $DB_PDO->lastInsertId();
 			}
 			$DB_PDO->commit();
 			return true;
-		}
-		catch (PDOException $e){
+		} catch (PDOException $e) {
 			$DB_PDO->rollback();
-			if($DB_PDO->is_display_errors()){
+			if ($DB_PDO->is_display_errors()) {
 				echo '更新バインド系のSQLが実行できません: ' . $e->getMessage();
 			}
 			exit();
@@ -294,13 +286,13 @@ class csqlcore {
 	@return 1行分の配列。空や失敗場合はfalse。リソースが無効の場合は例外
 	*/
 	//--------------------------------------------------------------------------------------
-	public function fetch_assoc(){
+	public function fetch_assoc()
+	{
 		global $DB_PDO;
-		if($this->res){
+		if ($this->res) {
 			return $this->res->fetch(PDO::FETCH_ASSOC);
-		}
-		else{
-			if($DB_PDO->is_display_errors()){
+		} else {
+			if ($DB_PDO->is_display_errors()) {
 				echo 'リソースがありません';
 			}
 		}
@@ -312,10 +304,11 @@ class csqlcore {
 	@return なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function free_res(){
+	public function free_res()
+	{
 		//空の配列を代入
 		$this->retarr = array();
-		if($this->res){
+		if ($this->res) {
 			$this->res->closeCursor();
 			$this->res = null;
 		}
@@ -325,7 +318,8 @@ class csqlcore {
 	@brief  デストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	protected function __destruct() {
+	protected function __destruct()
+	{
 		$this->free_res();
 	}
 }
@@ -333,13 +327,15 @@ class csqlcore {
 //--------------------------------------------------------------------------------------
 /// レコードクラス
 //--------------------------------------------------------------------------------------
-class crecord extends csqlcore {
+class crecord extends csqlcore
+{
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief  コンストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct(){
+	public function __construct()
+	{
 		$this->res = null;
 		parent::__construct();
 	}
@@ -355,13 +351,14 @@ class crecord extends csqlcore {
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public function select($debug,$columns,$table,$where = '1',$orderby = '',$limit = ''){
+	public function select($debug, $columns, $table, $where = '1', $orderby = '', $limit = '')
+	{
 		global $DB_PDO;
 		$this->free_res();
-		if($orderby != ""){
+		if ($orderby != "") {
 			$orderby = "order by " . $orderby;
 		}
-		$this->retarr['sql'] =<<< END_BLOCK
+		$this->retarr['sql'] = <<< END_BLOCK
 select
 {$columns} 
 from
@@ -373,7 +370,7 @@ where
 END_BLOCK;
 		//親クラスのcrecord_core_pres関数を呼ぶ(値は渡さない)
 		$ret =  $this->crecord_core_pres(array());
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -389,13 +386,14 @@ END_BLOCK;
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public function select_query($debug,$sql,$values = array()){
+	public function select_query($debug, $sql, $values = array())
+	{
 		global $DB_PDO;
 		$this->free_res();
 		$this->retarr['sql'] = $sql;
 		//親クラスのcrecord_core_pres関数を呼ぶ
 		$ret =  $this->crecord_core_pres($values);
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -411,19 +409,19 @@ END_BLOCK;
 	@return 成功すればtrue
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get_all_count_simple($debug,$table_name){
+	public function get_all_count_simple($debug, $table_name)
+	{
 		//select()メンバ関数を呼ぶ
-		if($this->select(
+		if ($this->select(
 			$debug,					//デバッグ文字を出力するかどうか
 			"count(*)",				//取得するカラム
 			"{$table_name}",			//取得するテーブル
 			"1"					//条件
-		)){
-			if($row = $this->fetch_assoc()){
+		)) {
+			if ($row = $this->fetch_assoc()) {
 				//取得した個数を返す
 				return $row['count(*)'];
-			}
-			else{
+			} else {
 				return 0;
 			}
 		}
@@ -440,18 +438,19 @@ END_BLOCK;
 	@return	配列（2次元配列になる）
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get_all_simple($debug,$from,$limit,$table_name,$sort_id_name){
+	public function get_all_simple($debug, $from, $limit, $table_name, $sort_id_name)
+	{
 		$arr = array();
 		//select()メンバ関数を呼ぶ
-		if($this->select(
+		if ($this->select(
 			$debug,			//デバッグ表示するかどうか
 			"*",			//取得するカラム
 			"{$table_name}",	//取得するテーブル
 			"1",			//条件
 			"{$sort_id_name} asc",	//並び替え
 			"limit " . $from . "," . $limit		//抽出開始行と抽出数
-		)){
-			while($row = $this->fetch_assoc()){
+		)) {
+			while ($row = $this->fetch_assoc()) {
 				$arr[] = $row;
 			}
 		}
@@ -468,17 +467,18 @@ END_BLOCK;
 	@return	配列（2次元配列になる）
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get_alltable_simple($debug,$table_name,$sort_id_name){
+	public function get_alltable_simple($debug, $table_name, $sort_id_name)
+	{
 		$arr = array();
 		//select()メンバ関数を呼ぶ
-		if($this->select(
+		if ($this->select(
 			$debug,			//デバッグ表示するかどうか
 			"*",			//取得するカラム
 			"{$table_name}",	//取得するテーブル
 			"1",			//条件
 			"{$sort_id_name} asc"	//並び替え
-		)){
-			while($row = $this->fetch_assoc()){
+		)) {
+			while ($row = $this->fetch_assoc()) {
 				$arr[] = $row;
 			}
 		}
@@ -496,19 +496,22 @@ END_BLOCK;
 	@return	配列（1次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get_tgt_simple($debug,$id,$table_name,$id_name){
-		if(!is_int($id)
-		||  $id < 1){
+	public function get_tgt_simple($debug, $id, $table_name, $id_name)
+	{
+		if (
+			!is_int($id)
+			||  $id < 1
+		) {
 			//falseを返す
 			return false;
 		}
 		//select()メンバ関数を呼ぶ
-		if($this->select(
+		if ($this->select(
 			$debug,			//デバッグ表示するかどうか
 			"*",			//取得するカラム
 			"{$table_name}",	//取得するテーブル
 			"{$id_name}=" . $id	//条件
-		)){
+		)) {
 			return $this->fetch_assoc();
 		}
 		return false;
@@ -518,7 +521,8 @@ END_BLOCK;
 	@brief  デストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __destruct(){
+	public function __destruct()
+	{
 		//親クラスのデストラクタを呼ぶ
 		parent::__destruct();
 	}
@@ -527,13 +531,15 @@ END_BLOCK;
 //--------------------------------------------------------------------------------------
 /// データ変更クラス
 //--------------------------------------------------------------------------------------
-class cchange_ex extends csqlcore {
+class cchange_ex extends csqlcore
+{
 	//--------------------------------------------------------------------------------------
 	/*!
 	@brief  コンストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct(){
+	public function __construct()
+	{
 		parent::__construct();
 	}
 	//--------------------------------------------------------------------------------------
@@ -546,12 +552,13 @@ class cchange_ex extends csqlcore {
 	@return 成功すれば追加されたID
 	*/
 	//--------------------------------------------------------------------------------------
-	public function insert($debug,$table,&$arr,$chk = false){
+	public function insert($debug, $table, &$arr, $chk = false)
+	{
 		global $DB_PDO;
 		//空の配列を代入
 		$this->retarr = array();
-		if($table == '' || !is_array($arr) || count($arr) < 1){
-			if($DB_PDO->is_display_errors()){
+		if ($table == '' || !is_array($arr) || count($arr) < 1) {
+			if ($DB_PDO->is_display_errors()) {
 				echo '追加すべきデータがありません。';
 			}
 			exit();
@@ -560,9 +567,9 @@ class cchange_ex extends csqlcore {
 		$sqlarr = "(";
 		$size = count($arr);
 		$count = 1;
-		foreach($arr as $i => $value){
+		foreach ($arr as $i => $value) {
 			$sqlarr .=  $i;
-			if($size > $count){
+			if ($size > $count) {
 				$sqlarr .= ",";
 			}
 			$count++;
@@ -570,25 +577,25 @@ class cchange_ex extends csqlcore {
 		$sqlarr .= ") values (";
 		$count = 1;
 		//プレイスフォルダの作成
-		foreach($arr as $i => $value){
+		foreach ($arr as $i => $value) {
 			$sqlarr .= ":" . $i;
-			if($size > $count){
+			if ($size > $count) {
 				$sqlarr .= ",";
 			}
 			$count++;
 		}
 		$sqlarr .= ")";
-		$this->retarr['sql'] =<<< END_BLOCK
+		$this->retarr['sql'] = <<< END_BLOCK
 insert into
 {$table}
 {$sqlarr}
 END_BLOCK;
 		//データの作成
 		$values = array();
-		foreach($arr as $key => $val){
+		foreach ($arr as $key => $val) {
 			$values[":" . $key] = $val;
 		}
-		if($chk){
+		if ($chk) {
 			echo 'SQL: ' . $this->retarr['sql'] . '<br>';
 			echo 'DATA: <br>';
 			print_r($values);
@@ -596,10 +603,10 @@ END_BLOCK;
 		}
 		//親クラスのexcute_core関数を呼ぶ
 		$ret = 0;
-		if($this->cchange_core($values,true)){
+		if ($this->cchange_core($values, true)) {
 			$ret = $this->retarr['lastinsert'];
 		}
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -618,13 +625,16 @@ END_BLOCK;
 	@return 影響を受けた行数
 	*/
 	//--------------------------------------------------------------------------------------
-	public function update($debug,$table,&$arr,$where,$chk=false){
+	public function update($debug, $table, &$arr, $where, $chk = false)
+	{
 		global $DB_PDO;
 		//空の配列を代入
 		$this->retarr = array();
-		if($table == '' || !is_array($arr) || count($arr) < 1
-			|| $where == ''){
-			if($DB_PDO->is_display_errors()){
+		if (
+			$table == '' || !is_array($arr) || count($arr) < 1
+			|| $where == ''
+		) {
+			if ($DB_PDO->is_display_errors()) {
 				echo '更新すべきデータがありません。';
 			}
 			exit();
@@ -633,9 +643,9 @@ END_BLOCK;
 		$count = 1;
 		$sqlarr = '';
 		//プレイスフォルダの作成
-		foreach($arr as $i => $value){
+		foreach ($arr as $i => $value) {
 			$sqlarr .=  $i . " = " . ":" . $i;
-			if($size > $count){
+			if ($size > $count) {
 				$sqlarr .= ",";
 			}
 			$count++;
@@ -650,10 +660,10 @@ where
 END_BLOCK;
 		//データの作成
 		$values = array();
-		foreach($arr as $key => $val){
+		foreach ($arr as $key => $val) {
 			$values[":" . $key] = $val;
 		}
-		if($chk){
+		if ($chk) {
 			echo 'SQL: ' . $this->retarr['sql'] . '<br>';
 			echo 'DATA: <br>';
 			print_r($values);
@@ -661,10 +671,10 @@ END_BLOCK;
 		}
 		//親クラスのcchange_core関数を呼ぶ
 		$ret = 0;
-		if($this->cchange_core($values)){
+		if ($this->cchange_core($values)) {
 			$ret = $this->res->rowCount();
 		}
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -681,24 +691,25 @@ END_BLOCK;
 	@return 影響を受けた行数
 	*/
 	//--------------------------------------------------------------------------------------
-	public function delete($debug,$table,$where,$chk = false){
+	public function delete($debug, $table, $where, $chk = false)
+	{
 		global $DB_PDO;
 		//空の配列を代入
 		$this->retarr = array();
-		if($table == '' || $where == ''){
-			if($DB_PDO->is_display_errors()){
+		if ($table == '' || $where == '') {
+			if ($DB_PDO->is_display_errors()) {
 				echo '削除すべきデータがありません。';
 			}
 			exit();
 		}
-		$this->retarr['sql'] =<<< END_BLOCK
+		$this->retarr['sql'] = <<< END_BLOCK
 delete
 from
 {$table}
 where
 {$where}
 END_BLOCK;
-		if($chk){
+		if ($chk) {
 			echo 'SQL: ' . $this->retarr['sql'] . '<br>';
 			echo 'DATA: <br>';
 			print_r($values);
@@ -706,10 +717,10 @@ END_BLOCK;
 		}
 		//親クラスのcchange_core_pres関数を呼ぶ
 		$ret =  0;
-		if($this->cchange_core_pres(array())){
+		if ($this->cchange_core_pres(array())) {
 			$ret = $this->res->rowCount();
 		}
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -725,22 +736,23 @@ END_BLOCK;
 	@return 影響を受けた行数
 	*/
 	//--------------------------------------------------------------------------------------
-	public function delete_table($debug,$table,$chk = false){
+	public function delete_table($debug, $table, $chk = false)
+	{
 		global $DB_PDO;
 		//空の配列を代入
 		$this->retarr = array();
-		if($table == ''){
-			if($DB_PDO->is_display_errors()){
+		if ($table == '') {
+			if ($DB_PDO->is_display_errors()) {
 				echo '削除すべきテーブルがありません。';
 			}
 			exit();
 		}
-		$this->retarr['sql'] =<<< END_BLOCK
+		$this->retarr['sql'] = <<< END_BLOCK
 delete
 from
 {$table}
 END_BLOCK;
-		if($chk){
+		if ($chk) {
 			echo 'SQL: ' . $this->retarr['sql'] . '<br>';
 			echo 'DATA: <br>';
 			print_r($values);
@@ -748,10 +760,10 @@ END_BLOCK;
 		}
 		//親クラスのcchange_core関数を呼ぶ
 		$ret =  0;
-		if($this->cchange_core(array())){
+		if ($this->cchange_core(array())) {
 			$ret = $this->res->rowCount();
 		}
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -770,11 +782,12 @@ END_BLOCK;
 	@return 影響を受けた行数と場合によってはインサートID
 	*/
 	//--------------------------------------------------------------------------------------
-	public function change_query($debug,$sql,$values = array(),$is_insert = false,$chk = false){
+	public function change_query($debug, $sql, $values = array(), $is_insert = false, $chk = false)
+	{
 		global $DB_PDO;
 		$this->free_res();
 		$this->retarr['sql'] = $sql;
-		if($chk){
+		if ($chk) {
 			echo 'SQL: ' . $this->retarr['sql'] . '<br>';
 			echo 'DATA: <br>';
 			print_r($values);
@@ -782,13 +795,13 @@ END_BLOCK;
 		}
 		//親クラスのcchange_core_pres関数を呼ぶ
 		$ret =  array();
-		if($this->cchange_core_pres($values,$is_insert)){
+		if ($this->cchange_core_pres($values, $is_insert)) {
 			$ret['rowCount'] = $this->res->rowCount();
-			if($is_insert){
+			if ($is_insert) {
 				$ret['lastInsert']  = $this->retarr['lastinsert'];
 			}
 		}
-		if($debug){
+		if ($debug) {
 			echo '<br />[sql debug]<br />';
 			$this->res->debugDumpParams();
 			echo '<br />[/sql debug]<br />';
@@ -800,7 +813,8 @@ END_BLOCK;
 	@brief  デストラクタ
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __destruct() {
+	public function __destruct()
+	{
 		//親クラスのデストラクタを呼ぶ
 		parent::__destruct();
 	}
@@ -809,4 +823,3 @@ END_BLOCK;
 
 
 //▲▲▲▲▲▲クラスブロック▲▲▲▲▲▲
-

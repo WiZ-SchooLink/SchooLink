@@ -11,7 +11,7 @@
 //--------------------------------------------------------------------------------------
 class ctextbox
 {
-	public $m_name ;
+	public $m_name;
 	public $m_value;
 	public $m_extstr;
 	//--------------------------------------------------------------------------------------
@@ -22,7 +22,8 @@ class ctextbox
 	@param[in]	$extstr	アトリビュート
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($name,$value,$extstr = ""){
+	public function __construct($name, $value, $extstr = "")
+	{
 		$this->m_name  = $name;
 		$this->m_value = $value;
 		$this->m_extstr = $extstr;
@@ -35,18 +36,18 @@ class ctextbox
 	@return	textbox文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($conf,$input_last_str = ''){
+	public function get($conf, $input_last_str = '')
+	{
 		$spval = cutil::escape($this->m_value);
-		if($conf){
+		if ($conf) {
 			//conf
-			$str =<<< END_BLOCK
+			$str = <<< END_BLOCK
 <span style="font-weight: bold;">{$spval}</span>
-<input type="hidden" name="{$this->m_name }" value="{$spval}" />
+<input type="hidden" name="{$this->m_name}" value="{$spval}" />
 END_BLOCK;
-		}
-		else{
-$str =<<< END_BLOCK
-<input type="text" name="{$this->m_name }" {$this->m_extstr} value="{$spval}" />{$input_last_str}
+		} else {
+			$str = <<< END_BLOCK
+<input type="text" name="{$this->m_name}" {$this->m_extstr} value="{$spval}" />{$input_last_str}
 END_BLOCK;
 		}
 		return $str;
@@ -59,8 +60,9 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($conf,$input_last_str = ''){
-		echo $this->get($conf,$input_last_str);
+	public function show($conf, $input_last_str = '')
+	{
+		echo $this->get($conf, $input_last_str);
 	}
 }
 //--------------------------------------------------------------------------------------
@@ -68,7 +70,7 @@ END_BLOCK;
 //--------------------------------------------------------------------------------------
 class cselect
 {
-	public $m_name ;
+	public $m_name;
 	public $m_valueArr;
 	public $m_extstr;
 	//--------------------------------------------------------------------------------------
@@ -78,7 +80,8 @@ class cselect
 	@param[in]	$extstr	アトリビュート
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($name,$extstr = ""){
+	public function __construct($name, $extstr = "")
+	{
 		$this->m_name  = $name;
 		$this->m_extstr = $extstr;
 		$this->m_valueArr = array();
@@ -90,7 +93,8 @@ class cselect
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function setoption(&$optarr){
+	public function setoption(&$optarr)
+	{
 		$this->m_valueArr = $optarr;
 	}
 	//--------------------------------------------------------------------------------------
@@ -102,8 +106,9 @@ class cselect
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function add($value,$laststr,$selected = false){
-		$this->m_valueArr[] = array($value,$laststr,$selected);
+	public function add($value, $laststr, $selected = false)
+	{
+		$this->m_valueArr[] = array($value, $laststr, $selected);
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -115,56 +120,56 @@ class cselect
 	@return	プルダウン文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($conf,$nullvalue = 0,$nullstr = "",$nullshowstr = ""){
+	public function get($conf, $nullvalue = 0, $nullstr = "", $nullshowstr = "")
+	{
 		$retstr = "";
-		if($conf){
+		if ($conf) {
 			//conf
 			$flag = false;
 			$retbase = '';
-			for($i = 0;$i < count($this->m_valueArr);$i++){
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
 				$spval = cutil::escape($this->m_valueArr[$i][0]);
 				$splaststr = cutil::escape($this->m_valueArr[$i][1]);
-				if($this->m_valueArr[$i][2]){
-					$retbase =<<< END_BLOCK
+				if ($this->m_valueArr[$i][2]) {
+					$retbase = <<< END_BLOCK
 <span style="font-weight: bold;">{$splaststr}</span>
-<input type="hidden" name="{$this->m_name }" value="{$spval}" />
+<input type="hidden" name="{$this->m_name}" value="{$spval}" />
 END_BLOCK;
 					$flag = true;
 					$retstr .= $retbase;
 				}
 			}
-			if(!$flag){
+			if (!$flag) {
 				$nullstr = cutil::escape($nullstr);
-				if($nullshowstr != ""){
+				if ($nullshowstr != "") {
 					$nullstr = cutil::escape($nullshowstr);
 				}
-				$retstr =<<< END_BLOCK
+				$retstr = <<< END_BLOCK
 {$nullstr}
 <input type="hidden" name="{$this->m_name}" value="{$nullvalue}" />
 END_BLOCK;
 			}
-		}
-		else{
-			$retstr =<<< END_BLOCK
-<select name="{$this->m_name }" {$this->m_extstr} >
+		} else {
+			$retstr = <<< END_BLOCK
+<select name="{$this->m_name}" {$this->m_extstr} >
 END_BLOCK;
 			$defoption = "";
-			if($nullstr != ""){
-				$defoption =<<< END_BLOCK
+			if ($nullstr != "") {
+				$defoption = <<< END_BLOCK
 <option value="{$nullvalue}">{$nullstr}</option>
 END_BLOCK;
 			}
 			$retstr .= $defoption;
-			for($i = 0;$i < count($this->m_valueArr);$i++){
-				$spval 
-				= cutil::escape($this->m_valueArr[$i][0]);
-				$splaststr 
-				= cutil::escape($this->m_valueArr[$i][1]);
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
+				$spval
+					= cutil::escape($this->m_valueArr[$i][0]);
+				$splaststr
+					= cutil::escape($this->m_valueArr[$i][1]);
 				$selectstr = "";
-				if($this->m_valueArr[$i][2]){
+				if ($this->m_valueArr[$i][2]) {
 					$selectstr = ' selected="selected" ';
 				}
-				$str =<<< END_BLOCK
+				$str = <<< END_BLOCK
 <option value="{$spval}" {$selectstr} >{$splaststr}</option>
 END_BLOCK;
 				$retstr .= $str;
@@ -183,8 +188,9 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($conf,$nullvalue = 0,$nullstr = "",$nullshowstr = ""){
-		echo $this->get($conf,$nullvalue,$nullstr,$nullshowstr);
+	public function show($conf, $nullvalue = 0, $nullstr = "", $nullshowstr = "")
+	{
+		echo $this->get($conf, $nullvalue, $nullstr, $nullshowstr);
 	}
 }
 //--------------------------------------------------------------------------------------
@@ -192,7 +198,7 @@ END_BLOCK;
 //--------------------------------------------------------------------------------------
 class ctextarea
 {
-	public $m_name ;
+	public $m_name;
 	public $m_value;
 	public $m_extstr;
 	//--------------------------------------------------------------------------------------
@@ -203,7 +209,8 @@ class ctextarea
 	@param[in]	$extstr	アトリビュート
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($name,$value,$extstr){
+	public function __construct($name, $value, $extstr)
+	{
 		$this->m_name  = $name;
 		$this->m_value = $value;
 		$this->m_extstr = $extstr;
@@ -215,19 +222,19 @@ class ctextarea
 	@return	テキストエリア文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($conf){
+	public function get($conf)
+	{
 		$spval = cutil::escape($this->m_value);
 		$spbrval = cutil::ret2br($spval);
-		if($conf){
+		if ($conf) {
 			//conf
-			$str =<<< END_BLOCK
+			$str = <<< END_BLOCK
 <span style="font-weight: bold;">{$spbrval}</span>
-<input type="hidden" name="{$this->m_name }" value="{$spval}" />
+<input type="hidden" name="{$this->m_name}" value="{$spval}" />
 END_BLOCK;
-		}
-		else{
-			$str =<<< END_BLOCK
-<textarea name="{$this->m_name }" {$this->m_extstr} >{$spval}</textarea>
+		} else {
+			$str = <<< END_BLOCK
+<textarea name="{$this->m_name}" {$this->m_extstr} >{$spval}</textarea>
 END_BLOCK;
 		}
 		return $str;
@@ -239,7 +246,8 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($conf){
+	public function show($conf)
+	{
 		echo $this->get($conf);
 	}
 }
@@ -249,7 +257,7 @@ END_BLOCK;
 //--------------------------------------------------------------------------------------
 class cchkbox
 {
-	public $m_name ;
+	public $m_name;
 	public $m_valueArr;
 	public $m_extstr;
 	//--------------------------------------------------------------------------------------
@@ -259,7 +267,8 @@ class cchkbox
 	@param[in]	$extstr	アトリビュート
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($name,$extstr = ""){
+	public function __construct($name, $extstr = "")
+	{
 		$this->m_name  = $name;
 		$this->m_extstr = $extstr;
 		$this->m_valueArr = array();
@@ -271,7 +280,8 @@ class cchkbox
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function setchk($chkarr){
+	public function setchk($chkarr)
+	{
 		$this->m_valueArr = $chkarr;
 	}
 	//--------------------------------------------------------------------------------------
@@ -284,8 +294,9 @@ class cchkbox
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function add($value,$laststr,$checked = false,$attstr = ""){
-		$this->m_valueArr[] = array($value,$laststr,$checked,$attstr);
+	public function add($value, $laststr, $checked = false, $attstr = "")
+	{
+		$this->m_valueArr[] = array($value, $laststr, $checked, $attstr);
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -295,45 +306,45 @@ class cchkbox
 	@return	チェックボックス文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($conf,$delimiter){
+	public function get($conf, $delimiter)
+	{
 		$retstr = "";
-		if($conf){
+		if ($conf) {
 			//conf
 			$flag = false;
 			$retbase = '';
 			$rowcount = 1;
-			for($i = 0;$i < count($this->m_valueArr);$i++){
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
 				$spval = cutil::escape($this->m_valueArr[$i][0]);
 				$splaststr = cutil::escape($this->m_valueArr[$i][1]);
-				if($this->m_valueArr[$i][2]){
-					$retbase =<<< END_BLOCK
+				if ($this->m_valueArr[$i][2]) {
+					$retbase = <<< END_BLOCK
 <span style="font-weight: bold;">{$splaststr}</span>
 <input type="hidden" name="{$this->m_name}" value="{$spval}" />
 END_BLOCK;
 					$flag = true;
-					if($rowcount != count($this->m_valueArr)){
+					if ($rowcount != count($this->m_valueArr)) {
 						$retbase .= $delimiter;
 					}
 					$retstr .= $retbase;
 				}
 			}
-		}
-		else{
+		} else {
 			$rowcount = 1;
-			for($i = 0;$i < count($this->m_valueArr);$i++){
-				$spval 
-				= cutil::escape($this->m_valueArr[$i][0]);
-				$splaststr 
-				= cutil::escape($this->m_valueArr[$i][1]);
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
+				$spval
+					= cutil::escape($this->m_valueArr[$i][0]);
+				$splaststr
+					= cutil::escape($this->m_valueArr[$i][1]);
 				$checkstr = "";
-				if($this->m_valueArr[$i][2]){
+				if ($this->m_valueArr[$i][2]) {
 					$checkstr = ' checked="checked" ';
 				}
 				$attstr = $this->m_valueArr[$i][3];
-				$str =<<< END_BLOCK
+				$str = <<< END_BLOCK
 <input type="checkbox" name="{$this->m_name}" value="{$spval}" {$attstr} {$checkstr} />{$splaststr}
 END_BLOCK;
-				if($rowcount != count($this->m_valueArr)){
+				if ($rowcount != count($this->m_valueArr)) {
 					$str .= $delimiter;
 				}
 				$retstr .= $str;
@@ -350,8 +361,9 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($conf,$delimiter){
-		echo $this->get($conf,$delimiter);
+	public function show($conf, $delimiter)
+	{
+		echo $this->get($conf, $delimiter);
 	}
 }
 
@@ -360,7 +372,7 @@ END_BLOCK;
 //--------------------------------------------------------------------------------------
 class cradio
 {
-	public $m_name ;
+	public $m_name;
 	public $m_valueArr;
 	public $m_extstr;
 	//--------------------------------------------------------------------------------------
@@ -370,7 +382,8 @@ class cradio
 	@param[in]	$extstr	アトリビュート
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($name,$extstr = ""){
+	public function __construct($name, $extstr = "")
+	{
 		$this->m_name  = $name;
 		$this->m_extstr = $extstr;
 		$this->m_valueArr = array();
@@ -382,7 +395,8 @@ class cradio
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function setradio($chkarr){
+	public function setradio($chkarr)
+	{
 		$this->m_valueArr = $chkarr;
 	}
 	//--------------------------------------------------------------------------------------
@@ -397,8 +411,9 @@ class cradio
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function add($value,$laststr,$checked = false,$attstr = "",$prevstr = "",$nextstr = ""){
-		$this->m_valueArr[] = array($value,$laststr,$checked,$attstr,$prevstr,$nextstr);
+	public function add($value, $laststr, $checked = false, $attstr = "", $prevstr = "", $nextstr = "")
+	{
+		$this->m_valueArr[] = array($value, $laststr, $checked, $attstr, $prevstr, $nextstr);
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -410,33 +425,34 @@ class cradio
 	@return	ラジオボタン文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($conf,$delimiter,$prevflg = false,$nextflg = false){
+	public function get($conf, $delimiter, $prevflg = false, $nextflg = false)
+	{
 		$retstr = "";
-		if($conf){
+		if ($conf) {
 			//conf
 			$flag = false;
 			$retbase = '';
 			$rowcount = 1;
-			for($i = 0;$i < count($this->m_valueArr);$i++){
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
 				$spval = cutil::escape($this->m_valueArr[$i][0]);
 				$splaststr = cutil::escape($this->m_valueArr[$i][1]);
 				$prevstr = '';
-				if($prevflg){
+				if ($prevflg) {
 					$prevstr = $this->m_valueArr[$i][4];
 				}
 				$nextstr = '';
-				if($nextflg){
+				if ($nextflg) {
 					$nextstr = $this->m_valueArr[$i][5];
 				}
-				if($this->m_valueArr[$i][2]){
-					$retbase =<<< END_BLOCK
+				if ($this->m_valueArr[$i][2]) {
+					$retbase = <<< END_BLOCK
 {$prevstr}
 <span style="font-weight: bold;">{$splaststr}</span>
-<input type="hidden" name="{$this->m_name }" value="{$spval}" />
+<input type="hidden" name="{$this->m_name}" value="{$spval}" />
 {$nextstr}
 END_BLOCK;
 					$flag = true;
-					if($rowcount != count($this->m_valueArr)){
+					if ($rowcount != count($this->m_valueArr)) {
 						$retbase .= $delimiter;
 					}
 					$retstr .= $retbase;
@@ -444,34 +460,33 @@ END_BLOCK;
 					break;
 				}
 			}
-		}
-		else{
+		} else {
 			$rowcount = 1;
-			for($i = 0;$i < count($this->m_valueArr);$i++){
-				$spval 
-				= cutil::escape($this->m_valueArr[$i][0]);
-				$splaststr 
-				= cutil::escape($this->m_valueArr[$i][1]);
+			for ($i = 0; $i < count($this->m_valueArr); $i++) {
+				$spval
+					= cutil::escape($this->m_valueArr[$i][0]);
+				$splaststr
+					= cutil::escape($this->m_valueArr[$i][1]);
 				$checkstr = "";
-				if($this->m_valueArr[$i][2]){
+				if ($this->m_valueArr[$i][2]) {
 					$checkstr = ' checked="checked" ';
 				}
 				$attstr = $this->m_valueArr[$i][3];
 				$prevstr = '';
-				if($prevflg){
+				if ($prevflg) {
 					$prevstr = $this->m_valueArr[$i][4];
 				}
 				$nextstr = '';
-				if($nextflg){
+				if ($nextflg) {
 					$nextstr = $this->m_valueArr[$i][5];
 				}
-				$str =<<< END_BLOCK
+				$str = <<< END_BLOCK
 {$prevstr}
-<input type="radio" name="{$this->m_name }" value="{$spval}" {$attstr} {$checkstr} />{$splaststr}
+<input type="radio" name="{$this->m_name}" value="{$spval}" {$attstr} {$checkstr} />{$splaststr}
 {$nextstr}
 END_BLOCK;
-				if($rowcount != count($this->m_valueArr)){
-				$str .= $delimiter;
+				if ($rowcount != count($this->m_valueArr)) {
+					$str .= $delimiter;
 				}
 				$retstr .= $str;
 				$rowcount++;
@@ -489,8 +504,9 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($conf,$delimiter,$prevflg = false,$nextflg = false){
-		echo $this->get($conf,$delimiter,$prevflg,$nextflg);
+	public function show($conf, $delimiter, $prevflg = false, $nextflg = false)
+	{
+		echo $this->get($conf, $delimiter, $prevflg, $nextflg);
 	}
 }
 //--------------------------------------------------------------------------------------
@@ -509,12 +525,12 @@ class cpager
 	@param[in]	$limit	1ページの行数
 	*/
 	//--------------------------------------------------------------------------------------
-	public function __construct($base_uri,$allcount,$limit){
+	public function __construct($base_uri, $allcount, $limit)
+	{
 		$this->m_base_uri  = $base_uri;
-		if(strstr($this->m_base_uri,'?') === false){
+		if (strstr($this->m_base_uri, '?') === false) {
 			$this->m_base_uri .= '?';
-		}
-		else{
+		} else {
 			$this->m_base_uri .= '&';
 		}
 		$this->m_allcount  = $allcount;
@@ -531,27 +547,27 @@ class cpager
 	@return	ページリンク文字列
 	*/
 	//--------------------------------------------------------------------------------------
-	public function get($pageparam,$tgt_page,$delimiter = ' > ',$first_ex = '',$last_ex = '',$att = ''){
+	public function get($pageparam, $tgt_page, $delimiter = ' > ', $first_ex = '', $last_ex = '', $att = '')
+	{
 		$str = "";
 		$pagemax = (int)($this->m_allcount / $this->m_limit);
-		if($this->m_allcount % $this->m_limit){
+		if ($this->m_allcount % $this->m_limit) {
 			$pagemax++;
 		}
-		if($pagemax <= 1){
+		if ($pagemax <= 1) {
 			return "";
 		}
 		$str .= $first_ex;
-		for($i = 1;$i <= $pagemax;$i++){
-			if($i == $tgt_page){
+		for ($i = 1; $i <= $pagemax; $i++) {
+			if ($i == $tgt_page) {
 				$str .=  $i;
-			}
-			else{
-				$temp =<<< END_BLOCK
+			} else {
+				$temp = <<< END_BLOCK
 <a href="{$this->m_base_uri}{$pageparam}={$i}" {$att}>{$i}</a>
 END_BLOCK;
 				$str .= $temp;
 			}
-			if($i != $pagemax){
+			if ($i != $pagemax) {
 				$str .= $delimiter;
 			}
 		}
@@ -569,8 +585,8 @@ END_BLOCK;
 	@return	なし
 	*/
 	//--------------------------------------------------------------------------------------
-	public function show($pageparam,$tgt_page,$delimiter = ' > ',$first_ex = '',$last_ex = '',$att = ''){
-		echo $this->get($pageparam,$tgt_page,$delimiter,$first_ex,$last_ex,$att);
+	public function show($pageparam, $tgt_page, $delimiter = ' > ', $first_ex = '', $last_ex = '', $att = '')
+	{
+		echo $this->get($pageparam, $tgt_page, $delimiter, $first_ex, $last_ex, $att);
 	}
 }
-
