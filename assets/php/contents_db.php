@@ -1040,7 +1040,7 @@ class chandout extends crecord
 		//親クラスのselect()メンバ関数を呼ぶ
 		$this->select(
 			false,			//デバッグ表示するかどうか
-			"title,contents_handout",			//取得するカラム
+			"*",			//取得するカラム
 			"handout",	//取得するテーブル
 			"handout.handout_id=" . $id,	//条件
 			"handout.handout_id asc"
@@ -1086,7 +1086,7 @@ class chandout extends crecord
 	@param[in]	$constents_handout		配布物内容
 	*/
 	//--------------------------------------------------------------------------------------
-	public function updata_handout($class_id, $handout_id, $title, $contents_handout, $handoutarr)
+	public function updata_handout($class_id, $handout_id, $title, $contents_handout, $handoutarr = [])
 	{
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
@@ -1162,7 +1162,7 @@ class chandfile extends crecord
 	/*!
 	@brief	配布物IDから配布物ファイルテーブルのファイルパスを取得
 	@param[in]	$id		配布物ID（配布物テーブル）
-	@return	配列（1次元配列になる）空の場合はfalse
+	@return	配列（2次元配列になる）空の場合はfalse
 	*/
 	//--------------------------------------------------------------------------------------
 	public function get_handfile($id)
@@ -1182,10 +1182,13 @@ class chandfile extends crecord
 			"handout.handout_id=handfile.handout_id AND handfile.handout_id=" . $id,	//条件
 			"handfile_id asc"
 		);
+		$arr = [];
 		//順次取り出す
-		$row = $this->fetch_assoc();
+		while ($row = $this->fetch_assoc()) {
+			$arr[] = $row;
+		}
 		//取得した配列を返す
-		return $row;
+		return $arr;
 	}
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -1272,7 +1275,7 @@ class chandfile extends crecord
 			$dataarr['handout_id'] = (int)$id;									# 配列に挿入するデータを格納
 			$dataarr['filepath'] = (string)$file_name_new;
 
-			$obj->insert(false, 'weblogfile', $dataarr);							# 挿入処理
+			$obj->insert(false, 'handfile', $dataarr);							# 挿入処理
 		}
 	}
 	//デリート
