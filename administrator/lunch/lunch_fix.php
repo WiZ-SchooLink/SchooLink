@@ -11,7 +11,7 @@ $class_obj = new cclass();  //アカウントのオブジェクト作成
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
 $flag = 2;  //管理者権限を代入
 //権限チェック処理
-if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
   $_SESSION['TeamA']['error_message'] = "lunch_fix-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
@@ -19,20 +19,21 @@ if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とペ
 
 $err_flag = false;  //エラー表示判別用フラグ
 //献立表画像アップロード処理
-if(!empty($_FILES)){  //修正をクリックした場合
-  if($_FILES["input_file"]["size"] > 0){  //画像が存在する場合
+if (!empty($_FILES)) {  //修正をクリックした場合
+  if ($_FILES["input_file"]["size"] > 0) {  //画像が存在する場合
     $account_obj->insert_lunch($_SESSION['TeamA']['account_id'], $_FILES["input_file"]);  //献立表画像をアップロード
     header("location: lunch.php"); //献立表トップページへリダイレクト
     exit();
-  }else{
+  } else {
     $err_flag = true; //エラー
   }
 }
 
 //エラー表示処理
-function error_message(){
+function error_message()
+{
   global $err_flag;
-  if($err_flag){
+  if ($err_flag) {
     echo "画像のアップロード可能ファイルサイズは2Mbyteまでです";
     $err_flag = false;
   }
@@ -48,14 +49,12 @@ function error_message(){
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    献立表修正
+    SchooLink - 献立表修正
   </title>
-  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
-    name='viewport' />
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
-    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- CSS Files -->
   <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="../../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
@@ -70,56 +69,50 @@ function error_message(){
 </head>
 
 <body class="">
-  <div class="wrapper ">
+  <div class="wrapper">
     <div class="sidebar" data-color="orange">
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
-    -->
       <div class="logo">
-        <a href="../handouts/handouts.html" class="simple-text logo-normal">
-          <center><img src="../../assets/img/SchooLink-2.png"alt="SchooLink"width="120" height="100"></center>
+        <a href="../../index.php" class="simple-text logo-normal">
+          <center><img src="../../assets/img/SchooLink-2.png" alt="SchooLink" width="120" height="100"></center>
         </a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
           <li>
-            <a href="../handouts/handouts.html">
-              <i class="now-ui-icons design_app"></i>
+            <a href="../handouts/handouts.php">
+              <i class="now-ui-icons education_atom"></i>
               <p>配布物</p>
             </a>
           </li>
           <li>
-            <a href="../tables/tables.html">
+            <a href="../weblog/weblog.php">
               <i class="now-ui-icons education_atom"></i>
-              <p>学校スケジュール</p>
+              <p>ブログ</p>
             </a>
           </li>
           <li>
-            <a href="../suggestion/suggestion.html">
+            <a href="../tables/tables.php">
+              <i class="now-ui-icons education_atom"></i>
+              <p>時間割</p>
+            </a>
+          </li>
+          <li class="active">
+            <a href="../lunch/lunch.php">
+              <i class="now-ui-icons education_atom"></i>
+              <p>献立表</p>
+            </a>
+          </li>
+          <li>
+            <a href="../suggestion/suggestion.php">
               <i class="now-ui-icons education_atom"></i>
               <p>目安箱</p>
             </a>
           </li>
-          <li>
-            <a href="../weblog/weblog.html">
-              <i class="now-ui-icons education_atom"></i>
-              <p>ブログ・ギャラリー</p>
-            </a>
-          </li>
-          <li class="active ">
-          <a href="../lunch/lunch.php">
-            <i class="now-ui-icons education_atom"></i>
-            <p>献立表</p>
-          </a>
-        </li>
-        
-
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
 
-      <!-- End Navbar -->
       <div class="panel-header panel-header-sm">
       </div>
       <div class="content">
@@ -128,19 +121,19 @@ function error_message(){
             <div class="card">
               <div class="card-header">
                 <h4 class="card-title">献立表修正</h4>
-                <form action="" method="post" name="lunch_fix_form" class="lunch_fix_form"   enctype="multipart/form-data">
-                <div class="form-group">
-                  <label for="inputFile">献立画像</label>
-                  <div class="custom-file">
-                    <input type="file" accept="image/*" class="custom-file-input" id="input_file" name="input_file"> 
-                    <label class="custom-file-label" for="inputFile">画像ファイルをアップロードしてください</label>
+                <form action="" method="post" name="lunch_fix_form" class="lunch_fix_form" enctype="multipart/form-data">
+                  <div class="form-group">
+                    <label for="inputFile">献立画像</label>
+                    <div class="custom-file">
+                      <input type="file" accept="image/*" class="custom-file-input" id="input_file" name="input_file">
+                      <label class="custom-file-label" for="inputFile">画像ファイルをアップロードしてください</label>
+                    </div>
                   </div>
-                </div>
-                <input type="submit" class="btn btn-primary" value="実行">
+                  <input type="submit" class="btn btn-primary" value="実行">
                 </form>
                 <p>
                   <?php
-                    error_message();  //エラー表示
+                  error_message();  //エラー表示
                   ?>
                 </p>
               </div>
@@ -150,37 +143,6 @@ function error_message(){
           </div>
         </div>
       </div>
-
-      <footer class="footer">
-        <div class=" container-fluid ">
-          <nav>
-            <ul>
-              <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
-                </a>
-              </li>
-              <li>
-                <a href="http://presentation.creative-tim.com">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="http://blog.creative-tim.com">
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </nav>
-          <div class="copyright" id="copyright">
-            &copy;
-            <script>
-              document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a
-              href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
-          </div>
-        </div>
-      </footer>
     </div>
   </div>
   <!--   Core JS Files   -->
@@ -199,13 +161,12 @@ function error_message(){
   <!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
-
     });
   </script>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
   <script>
     bsCustomFileInput.init();
