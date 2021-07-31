@@ -1915,9 +1915,12 @@ class clikes extends crecord
 	@return	bool true or false
 	*/
 	//--------------------------------------------------------------------------------------
-	/*public function check_likes($account_id,$suggestion_id){
-		if(!cutil::is_number($account_id)
-		||  $account_id < 1){
+	public function check_likes($account_id, $suggestion_id)
+	{
+		if (
+			!cutil::is_number($account_id)
+			||  $account_id < 1
+		) {
 			//falseを返す
 			return false;
 		}
@@ -1925,16 +1928,16 @@ class clikes extends crecord
 		$this->select(
 			false,			//デバッグ表示するかどうか
 			"like_id",			//取得するカラム
-			"account,e_suggestionbox,like_suggestion",	//取得するテーブル
-			"account.account_id = like_suggestion.account_id AND e_suggestionbox.suggestion_id = like_suggestion.suggestion_id AND like_suggestion.account_id = ". 00000251 ."and like_suggestion.suggestion_id=". 5
+			"like_suggestion",	//取得するテーブル
+			'account_id = ' . $account_id . ' and suggestion_id = ' . $suggestion_id
 		);
 		$row = $this->fetch_assoc();
-		if(empty($row)){
+		if (empty($row)) {
 			return false;
-		}else{
+		} else {
 			return true;
 		}
-	}*/
+	}
 	//インサート
 	//--------------------------------------------------------------------------------------
 	/*!
@@ -1945,11 +1948,14 @@ class clikes extends crecord
 	//--------------------------------------------------------------------------------------
 	public function insert_likes($account_id, $suggestion_id)
 	{
-
-		$ins_obj = new cchange_ex();
-		$dataarr['account_id'] = $account_id;
-		$dataarr['suggestion_id'] = $suggestion_id;
-		$ins_obj->insert(false, 'like_suggestion', $dataarr);
+		if ($this->check_likes($account_id, $suggestion_id)) {
+			$this->delete_likes($account_id, $suggestion_id);
+		} else {
+			$ins_obj = new cchange_ex();
+			$dataarr['account_id'] = $account_id;
+			$dataarr['suggestion_id'] = $suggestion_id;
+			$ins_obj->insert(false, 'like_suggestion', $dataarr);
+		}
 	}
 
 	//デリート
@@ -1963,8 +1969,6 @@ class clikes extends crecord
 	public function delete_likes($account_id, $suggestion_id)
 	{
 		$ins_obj = new cchange_ex();
-		$dataarr['account_id'] = $account_id;
-		$dataarr['suggestion_id'] = $suggestion_id;
-		$ins_obj->delete(false, 'like_suggestion', $dataarr, 'account_id=' . $account_id . "AND suggestion_id=" . $suggestion_id);
+		$ins_obj->delete(false, 'like_suggestion', 'account_id = ' . $account_id . ' and suggestion_id = ' . $suggestion_id);
 	}
 }
