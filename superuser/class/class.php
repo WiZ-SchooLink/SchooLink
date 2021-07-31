@@ -1,19 +1,3 @@
-<!--
-
-=========================================================
-* Now UI Dashboard - v1.5.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/now-ui-dashboard
-* Copyright 2019 Creative Tim (http://www.creative-tim.com)
-
-* Designed by www.invisionapp.com Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
--->
 <?php
 require_once("inc_base.php");
 require_once($CMS_COMMON_INCLUDE_DIR . "libs.php");
@@ -25,9 +9,9 @@ $schoolname_array = $account_obj->get_school_classinfo($_SESSION['TeamA']['accou
 
 //権限チェック
 $account_flag_arr = $account_obj->get_flg($_SESSION['TeamA']['account_id']);  //ログイン中のアカウントの権限を取得
-$flag = 3;  //管理者権限を代入
+$flag = 3;  //最上位管理者権限を代入
 //権限チェック処理
-if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とページの権限が一致しない場合
+if ($account_flag_arr[0]["user_flag"] != $flag) { //アカウントの権限とページの権限が一致しない場合
   $_SESSION['TeamA']['error_message'] = "class-アクセスする権限がありません";   //アクセス権限が無い場合セッションにエラーメッセージを追加
   header("location: ../../error.php"); //エラーページへリダイレクト
   exit();
@@ -37,9 +21,9 @@ if($account_flag_arr[0]["user_flag"] != $flag){ //アカウントの権限とペ
 function make_schoollist($row)
 {
   echo '<tr>'
-  .'<td> <a href = class_fix.php?id=' . $row["class_id"] . '>' . $row["class_name"] . '</a> </td>'  //クラスIDを出力し、リンクを生成
-  .'<td>' . $row["grade"] . '年</td>'  //学年を表示
-  .'</tr>';
+    . '<td> <a href = class_fix.php?id=' . $row["class_id"] . '>' . $row["class_name"] . '</a> </td>'  //クラスIDを出力し、リンクを生成
+    . '<td>' . $row["grade"] . '年</td>'  //学年を表示
+    . '</tr>';
 }
 ?>
 
@@ -52,7 +36,7 @@ function make_schoollist($row)
   <link rel="icon" type="image/png" href="../../assets/img/SchooLink-2.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    クラス管理
+    SchooLink - クラス管理
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -65,22 +49,19 @@ function make_schoollist($row)
   <link href="../../assets/demo/demo.css" rel="stylesheet" />
 
   <style>
-    table.table td a{
+    table.table td a {
       display: block;
     }
   </style>
 </head>
 
 <body class="">
-  <div class="wrapper ">
+  <div class="wrapper">
     <div class="sidebar" data-color="orange">
-      <!--
-        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
-    -->
       <div class="logo">
-       
-        <a href="../handouts/handouts.html" class="simple-text logo-normal">
-          <center><img src="../../assets/img/SchooLink-2.png"alt="SchooLink"width="120" height="100"></center>
+
+        <a href="../../index.php" class="simple-text logo-normal">
+          <center><img src="../../assets/img/SchooLink-2.png" alt="SchooLink" width="120" height="100"></center>
         </a>
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
@@ -91,18 +72,17 @@ function make_schoollist($row)
               <p>アカウント管理</p>
             </a>
           </li>
-          <li class="active ">
+          <li class="active">
             <a href="../class/class.php">
               <i class="now-ui-icons education_atom"></i>
               <p>クラス管理</p>
             </a>
           </li>
-          
         </ul>
       </div>
     </div>
     <div class="main-panel" id="main-panel">
-     
+
       <!-- End Navbar -->
       <div class="panel-header panel-header-sm">
       </div>
@@ -126,7 +106,7 @@ function make_schoollist($row)
                       </th>
                     </thead>
                     <tbody>
-                    <?php
+                      <?php
                       //クラス名リスト自動生成実行
                       foreach ($schoolname_array as $row) {  //取得したリスト数分ループ
                         make_schoollist($row);  //1クラス分のデータを代入して実行
@@ -140,35 +120,6 @@ function make_schoollist($row)
           </div>
         </div>
       </div>
-
-      <footer class="footer">
-        <div class=" container-fluid ">
-          <nav>
-            <ul>
-              <li>
-                <a href="https://www.creative-tim.com">
-                  Creative Tim
-                </a>
-              </li>
-              <li>
-                <a href="http://presentation.creative-tim.com">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="http://blog.creative-tim.com">
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </nav>
-          <div class="copyright" id="copyright">
-            &copy; <script>
-              document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))
-            </script>, Designed by <a href="https://www.invisionapp.com" target="_blank">Invision</a>. Coded by <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a>.
-          </div>
-        </div>
-      </footer>
     </div>
   </div>
   <!--   Core JS Files   -->
@@ -189,7 +140,6 @@ function make_schoollist($row)
     $(document).ready(function() {
       // Javascript method's body can be found in assets/js/demos.js
       demo.initDashboardPageCharts();
-
     });
   </script>
 </body>

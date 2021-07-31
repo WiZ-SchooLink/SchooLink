@@ -10,4 +10,5 @@ $account_obj->delete_account($_SESSION['TeamA']['delete_account_id']);	//取得�
 unset($_SESSION['TeamA']['delete_account_id']);	//削除が完了したアカウントIDをセッションから削除
 
 header("location: account.php");	//削除後アカウント管理ページへリダイレクト
+exit();
 ?>
