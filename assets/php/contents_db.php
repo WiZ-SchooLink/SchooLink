@@ -551,7 +551,7 @@ class caccount extends crecord
 			"handout.*",			//取得するカラム
 			"account,class,handout",	//取得するテーブル
 			"account.class_id=class.class_id AND class.class_id=handout.class_id AND account.account_id = $id",
-			"handout.handout_id asc"	//条件			
+			"handout.date desc"	//条件			
 		);
 		$arr = [];
 		//順次取り出す
@@ -1378,7 +1378,7 @@ class cweblog extends crecord
 			"weblog.weblog_id,weblog.date,weblog.title,weblog.contents_weblog",			//取得するカラム
 			"account,class,weblog",	//取得するテーブル
 			"account.class_id=class.class_id AND class.class_id=weblog.class_id AND account.account_id=" . $id,	//条件
-			"weblog.weblog_id asc"
+			"weblog.date desc"
 		);
 		//順次取り出す
 		while ($row = $this->fetch_assoc()) {
@@ -1639,7 +1639,7 @@ class csuggestion extends crecord
 			"e_suggestionbox.suggestion_id,e_suggestionbox.date,e_suggestionbox.title,e_suggestionbox.contents_suggestion",			//取得するカラム
 			"account,class,e_suggestionbox",	//取得するテーブル
 			"account.class_id=class.class_id AND class.class_id=e_suggestionbox.class_id AND account.account_id=" . $id,	//条件
-			"e_suggestionbox.suggestion_id asc"
+			"e_suggestionbox.date desc"
 		);
 		//順次取り出す
 		while ($row = $this->fetch_assoc()) {
