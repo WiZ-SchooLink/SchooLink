@@ -1463,12 +1463,12 @@ class cweblog extends crecord
 	public function insert_weblog($account_id, $title, $contents_weblog, $weblogarr)
 	{
 		$acc_obj = new cclass();
-		$class_id = $acc_obj->get_class_accoid($account_id);
+		$class_id [] = $acc_obj->get_class_accoid($account_id);
 		$weblog_obj = new cweblog();
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
 		$dataarr = array();
-		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['class_id'] = (int)$class_id[0]["class_id"];
 		$dataarr['date'] = $date;
 		$dataarr['title'] = (string)$title;
 		$dataarr['contents_weblog'] = (string)$contents_weblog;
@@ -1516,11 +1516,11 @@ class cweblog extends crecord
 	public function update_weblog($account_id, $weblog_id, $title, $contents_weblog, $weblogarr = [])
 	{
 		$acc_obj = new cclass();
-		$class_id = $acc_obj->get_class_accoid($account_id);
+		$class_id [] = $acc_obj->get_class_accoid($account_id);
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
 		$dataarr = array();
-		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['class_id'] = (int)$class_id[0]["class_id"];
 		$dataarr['date'] = $date;
 		$dataarr['title'] = (string)$title;
 		$dataarr['contents_weblog'] = (string)$contents_weblog;
@@ -1724,11 +1724,11 @@ class csuggestion extends crecord
 	public function insert_e_suggestionbox($account_id, $title, $contents_suggestion, $suggestionarr)
 	{
 		$acc_obj = new cclass();
-		$class_id = $acc_obj->get_class_accoid($account_id);
+		$class_id [] = $acc_obj->get_class_accoid($account_id);
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
 		$dataarr = array();
-		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['class_id'] = (int)$class_id[0]["class_id"];
 		$dataarr['date'] = $date;
 		$dataarr['title'] = (string)$title;
 		$dataarr['contents_suggestion'] = (string)$contents_suggestion;
@@ -1776,11 +1776,11 @@ class csuggestion extends crecord
 	public function update_e_suggestionbox($account_id, $suggestion_id, $title, $contents_suggestion, $suggestionarr)
 	{
 		$acc_obj = new cclass();
-		$class_id = $acc_obj->get_class_accoid($account_id);
+		$class_id [] = $acc_obj->get_class_accoid($account_id);
 		$obj = new cchange_ex();
 		$date = date("Y-m-d H:i:s");
 		$dataarr = array();
-		$dataarr['class_id'] = (int)$class_id;
+		$dataarr['class_id'] = (int)$class_id[0]["class_id"];
 		$dataarr['date'] = $date;
 		$dataarr['title'] = (string)$title;
 		$dataarr['contents_suggestion'] = (string)$contents_suggestion;
