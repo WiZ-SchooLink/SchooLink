@@ -1380,6 +1380,7 @@ class cweblog extends crecord
 			"account.class_id=class.class_id AND class.class_id=weblog.class_id AND account.account_id=" . $id,	//条件
 			"weblog.date desc"
 		);
+		$arr = [];
 		//順次取り出す
 		while ($row = $this->fetch_assoc()) {
 			$arr[] = $row;
@@ -1641,6 +1642,7 @@ class csuggestion extends crecord
 			"account.class_id=class.class_id AND class.class_id=e_suggestionbox.class_id AND account.account_id=" . $id,	//条件
 			"e_suggestionbox.date desc"
 		);
+		$arr = [];
 		//順次取り出す
 		while ($row = $this->fetch_assoc()) {
 			$arr[] = $row;
